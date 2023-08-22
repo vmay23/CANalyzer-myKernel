@@ -65,7 +65,7 @@ on timer t_tester_present{
     if (_ON_ == _CLUSTER_TARGET_TESTER_PRESENT){
         //entering extended session
         write("******************************");
-        write("    ESTER_PRESENT >>> CLSTR   ");
+        write("   TESTER_PRESENT >>> CLSTR   ");
         write("******************************");
         MY_DIAGNOSTIC_REQUEST_CLUSTER.BYTE(0) = 0x02; 
         MY_DIAGNOSTIC_REQUEST_CLUSTER.BYTE(1) = 0x3E;
