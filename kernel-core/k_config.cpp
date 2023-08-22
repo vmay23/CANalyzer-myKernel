@@ -180,7 +180,7 @@ variables{
     char _LIDAR_TARGET_2000;
     char _LIDAR_TARGET_2500;
 
-    //LIDAR
+    //HU
     char _HU_TARGET;
     char _HU_TARGET_10;
     char _HU_TARGET_50;
