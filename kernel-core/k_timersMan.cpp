@@ -82,7 +82,7 @@ on timer t_tester_present{
         write("******************************");
         write("  TESTER_PRESENT >>> DSPLY    ");
         write("******************************");
-        //MY_DIAGNOSTIC_REQUEST_BCM.DataLength = 8;
+        //MY_DIAGNOSTIC_REQUEST_DISPLAY.DataLength = 8;
         MY_DIAGNOSTIC_REQUEST_DISPLAY.BYTE(0) = 0x02; 
         MY_DIAGNOSTIC_REQUEST_DISPLAY.BYTE(1) = 0x3E;
         MY_DIAGNOSTIC_REQUEST_DISPLAY.BYTE(2) = 0x00;
