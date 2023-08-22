@@ -74,26 +74,29 @@ variables{
     /*******************************************************************/
     /* *   variables ---> 1st must be configured before to be used   * */
     /*******************************************************************/
-    char  _CHOOSED_ECU;
-    char  _GATEWAY_FLAG_STOP   = _OFF_;
-    char  _GATEWAY_DIAG_CASE   = _DEFAULT_SESSION_;
-    char  _CLUSTER_FLAG_STOP   = _OFF_;
-    char  _CLUSTER_DIAG_CASE   = _DEFAULT_SESSION_;
-    char  _DISPLAYFLAG_STOP    = _OFF_;
-    char  _DISPLAY_DIAG_CASE   = _DEFAULT_SESSION_;
-    char  _LIDAR_FLAG_STOP     = _OFF_;
-    char  _LIDAR_DIAG_CASE     = _DEFAULT_SESSION_;    
-    char  _HU_FLAG_STOP        = _OFF_;
-    char  _HU_DIAG_CASE        = _DEFAULT_SESSION_;
+    char vin_part_can1 = 0x00;
+    char vin_part_can2 = 0x00;
+    
+    char  _choosed_ecu;
+    char  _GATEWAY_flag_stop   = _OFF_;
+    char  _GATEWAY_diag_case   = _DEFAULT_SESSION_;
+    char  _CLUSTER_flag_stop   = _OFF_;
+    char  _CLUSTER_diag_case   = _DEFAULT_SESSION_;
+    char  _DISPLAY_flag_stop   = _OFF_;
+    char  _DISPLAY_diag_case   = _DEFAULT_SESSION_;
+    char  _LIDAR_flag_stop     = _OFF_;
+    char  _LIDAR_diag_case     = _DEFAULT_SESSION_;    
+    char  _HU_flag_stop        = _OFF_;
+    char  _HU_diag_case        = _DEFAULT_SESSION_;
 
     /*
         TESTR_PRESENT_TARGET 
     */
-    char _GATEWAY_TARGET_TESTER_PRESENT     =   _DISABLED_;
-    char _CLUSTER_TARGET_TESTER_PRESENT     =   _DISABLED_;
-    char _DISPLAY_TARGET_TESTER_PRESENT     =   _DISABLED_;
-    char _LIDAR_TARGET_TESTER_PRESENT       =   _DISABLED_;
-    char _HU_TARGET_TESTER_PRESENT          =   _DISABLED_;
+    char _GATEWAY_target_tester_present     =   _DISABLED_;
+    char _CLUSTER_target_tester_present     =   _DISABLED_;
+    char _DISPLAY_target_tester_present     =   _DISABLED_;
+    char _LIDAR_target_tester_present       =   _DISABLED_;
+    char _HU_target_tester_present          =   _DISABLED_;
 
     /*
         DIAGNOSTIC timers
@@ -103,9 +106,11 @@ variables{
     /*
         SERVICE 28
     */  
-    msTimer t_stop_messages_ipc;
-    msTimer t_stop_messages_etm;
-    msTimer t_stop_messages_bcm;
+    msTimer t_stop_messages_gateway;
+    msTimer t_stop_messages_cluster;
+    msTimer t_stop_messages_display;
+    msTimer t_stop_messages_lidar;
+    msTimer t_stop_messages_hu;
     msTimer t_default_session;
     msTimer t_extended_session;
     msTimer t_shut_up_ecu;

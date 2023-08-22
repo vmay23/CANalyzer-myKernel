@@ -5,9 +5,11 @@
 
 \Kernel-core
 
+\Kernel-core\dbc
+
 \Kernel-core\config
 
-\Kernel-core\dbc
+\Kernel-core\timersMan
 
 \Kernel-core\defaults
 

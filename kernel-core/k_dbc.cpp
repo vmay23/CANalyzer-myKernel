@@ -28,7 +28,7 @@ variables{
         //ORIGINAL_NAME                         CLONE_NAME                      MESSAGE_ADDRESS     SENDER_BY    SEND_TO     
         MESSAGE CAN-BUS1::GATEWAY_STS_DOORS     MY_CAN1_GATEWAY_STS_DOORS;      //0x4ab             gateway      cluster
         MESSAGE CAN-BUS1::ODOMETER              MY_CAN1_ODOMETER                //0x3ae             cluster      gateway
-        MESSAGE CAN-BUS1::TRIP_STATUS           MY_CCAN1_TRIP_STATUS            //0x8ac             gateway      cluster
+        MESSAGE CAN-BUS1::TRIP_STATUS           MY_CAN1_TRIP_STATUS             //0x8ac             cluster      cluster
 
 
     /*
@@ -104,6 +104,7 @@ variables{
         MESSAGE CAN-BUS2::HU_CHIMES             MY_CAN2_HU_CHIMES;              //0x1ab             hu           gateway, display
         MESSAGE CAN-BUS2::HU_STATUS             MY_CAN2_HU_STATUS;              //0x6ed             hu           gateway, display, ipc
         MESSAGE CAN-BUS2::DISPLAY_STATUS        MY_CAN2_DISPLAY_STATUS;         //0xcc7             display      hu
+        MESSAGE CAN-BUS2::DISPLAY_THEFT         MY_CAN2_DISPLAY_THEFT           //0x64A             display      hu
 
     /*____________________________________________________________________________________________________________________________*/
 }
