@@ -72,7 +72,7 @@ variables{
 
 
     /*******************************************************************/
-    /* *  As CAPL has no 'defines' I had to use this approach here   * */
+    /* *   variables ---> 1st must be configured before to be used   * */
     /*******************************************************************/
     char  _CHOOSED_ECU;
     char  _GATEWAY_FLAG_STOP   = _OFF_;
@@ -95,7 +95,43 @@ variables{
     char _LIDAR_TARGET_TESTER_PRESENT       =   _DISABLED_;
     char _HU_TARGET_TESTER_PRESENT          =   _DISABLED_;
 
-   
+    /*
+        DIAGNOSTIC timers
+    */
+    msTimer t_tester_present;
+       
+    /*
+        SERVICE 28
+    */  
+    msTimer t_stop_messages_ipc;
+    msTimer t_stop_messages_etm;
+    msTimer t_stop_messages_bcm;
+    msTimer t_default_session;
+    msTimer t_extended_session;
+    msTimer t_shut_up_ecu;
+  
+    /*
+        ecu message timers
+    */
+    msTimer    t_10ms;
+    msTimer    t_50ms;
+    msTimer    t_100ms;
+    msTimer    t_150ms;
+    msTimer    t_200ms;
+    msTimer    t_250ms;
+    msTimer    t_300ms;
+    msTimer    t_350ms;
+    msTimer    t_400ms;
+    msTimer    t_450ms;
+    msTimer    t_500ms;
+    msTimer    t_700ms;
+    msTimer    t_750ms;
+    msTimer    t_1000ms;
+    msTimer    t_1500ms;
+    msTimer    t_2000ms; 
+    msTimer    t_2500ms; 
+    msTimer    t_vin;
+
     /*
         ECU TIMER TARGET 
     */
@@ -199,4 +235,5 @@ variables{
     char _HU_TARGET_1500;
     char _HU_TARGET_2000;
     char _HU_TARGET_2500;
+
 }
