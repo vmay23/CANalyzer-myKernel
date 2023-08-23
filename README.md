@@ -1,22 +1,33 @@
 # CANalyzer-Kernel
  Let me help you to automate your component validation proof!
 
-\
+  //kernel-core  
 
-\Kernel-core
+    #include "/kernel-core/k_dbc.can"
 
-\Kernel-core\dbc
+    #include "/kernel-core/k_config.can"
 
-\Kernel-core\config
+    #include "/kernel-core/k_timersMan.can"
 
-\Kernel-core\timersMan
+    #include "/kernel-core/k_ecuMatrix.can"
 
-\Kernel-core\defaults
+    
+  //help2man
 
-\Kernel-core\matrix
+    #include "help2man/h2m_ignet_functions.can"
 
-\Kernel-core\ecus
+    #include "help2man/h2m_gateway_defaults.can"
 
-\diagnostic\
+    #include "help2man/h2m_cluster_defaults.can"
 
-\help2man\
+    #include "help2man/h2m_display_defaults.can"
+
+    #include "help2man/h2m_lidar_defaults.can"
+
+    #include "help2man/h2m_hu_defaults.can"
+
+
+  //TEST_CASES
+
+    #include "testcase/tc_keyON_keyOFF.can"
+    
