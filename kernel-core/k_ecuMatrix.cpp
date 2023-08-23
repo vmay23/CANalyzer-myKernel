@@ -1,10 +1,26 @@
 /*@!Encoding:1252*/
 variables{}
+/*===========================================================*/
+/*=========       ECU & TIME TARGET CONTROLLER       ========*/
+/*===========================================================*/
+void Matrix(ecu){
+    switch(ecu){
+        case _GATEWAY_:{
+                         StartSimulation(_GATEWAY_, _10ms_);
+                         StartSimulation(_GATEWAY_, _50ms_);
+                         break;
+                       }
+    }
+}
+
+/*=_________________________________________________________=*/
+
+
 
 /*===========================================================*/
 /*=========       ECU & TIME TARGET CONTROLLER       ========*/
 /*===========================================================*/
-void StartSimulink(char ecu, long time){
+void StartSimulation(char ecu, long time){
     write(" WELCOME, TO THE MATRIX !");
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                         G A T E W A Y
@@ -1074,5 +1090,5 @@ void StartSimulink(char ecu, long time){
     }//if(_HU_ == ecu){}
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-}//END StartSimulink()
+}//END StartSimulation()
   
