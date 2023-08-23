@@ -8,23 +8,23 @@ variables{}
 /**===========================================================================================================================**/
 void Cancel_All_Timers(){
   //stop all timers from application layer
-  cancelTimer(t_2500ms_);
-  cancelTimer(t_2000ms_); 
-  cancelTimer(t_1500ms_);
-  cancelTimer(t_1000ms_);
-  cancelTimer(t_750ms_);
-  cancelTimer(t_700ms_);
-  cancelTimer(t_500ms_);
-  cancelTimer(t_450ms_);
-  cancelTimer(t_400ms_);
-  cancelTimer(t_350ms_);
-  cancelTimer(t_300ms_);
-  cancelTimer(t_250ms_);
-  cancelTimer(t_200ms_);
-  cancelTimer(t_150ms_);
-  cancelTimer(t_100ms_);
-  cancelTimer(t_50ms_);
-  cancelTimer(t_10ms_);
+  cancelTimer(t_2500ms);
+  cancelTimer(t_2000ms); 
+  cancelTimer(t_1500ms);
+  cancelTimer(t_1000ms);
+  cancelTimer(t_750ms);
+  cancelTimer(t_700ms);
+  cancelTimer(t_500ms);
+  cancelTimer(t_450ms);
+  cancelTimer(t_400ms);
+  cancelTimer(t_350ms);
+  cancelTimer(t_300ms);
+  cancelTimer(t_250ms);
+  cancelTimer(t_200ms);
+  cancelTimer(t_150ms);
+  cancelTimer(t_100ms);
+  cancelTimer(t_50ms);
+  cancelTimer(t_10ms);
   cancelTimer(t_vin);
 
   //stop all timers from diangostic layer
@@ -47,7 +47,7 @@ void Cancel_All_Timers(){
     T E S T E R   P R E S E N T
 */
 on timer t_tester_present{
-    if (_ON_ == _GATEWAY_TARGET_TESTER_PRESENT){
+    if (_ON_ == _GATEWAY_target_TESTER_PRESENT){
         //entering extended session
         write("******************************");
         write("    TESTER_PRESENT >>> GTW    ");
@@ -62,7 +62,7 @@ on timer t_tester_present{
         MY_DIAGNOSTIC_REQUEST_GATEWAY.BYTE(7) = 0x00;
         output(MY_DIAGNOSTIC_REQUEST_GATEWAY);     
     }
-    if (_ON_ == _CLUSTER_TARGET_TESTER_PRESENT){
+    if (_ON_ == _CLUSTER_target_TESTER_PRESENT){
         //entering extended session
         write("******************************");
         write("   TESTER_PRESENT >>> CLSTR   ");
@@ -77,7 +77,7 @@ on timer t_tester_present{
         MY_DIAGNOSTIC_REQUEST_CLUSTER.BYTE(7) = 0x00;
         output(MY_DIAGNOSTIC_REQUEST_CLUSTER); 
     }
-    if (_ON_ == _DISPLAY_TARGET_TESTER_PRESENT){
+    if (_ON_ == _DISPLAY_target_TESTER_PRESENT){
         //entering extended session
         write("******************************");
         write("  TESTER_PRESENT >>> DSPLY    ");
@@ -93,7 +93,7 @@ on timer t_tester_present{
         MY_DIAGNOSTIC_REQUEST_DISPLAY.BYTE(7) = 0x00;
         output(MY_DIAGNOSTIC_REQUEST_DISPLAY);     
     }
-    if (_ON_ == _LIDAR_TARGET_TESTER_PRESENT){
+    if (_ON_ == _LIDAR_target_TESTER_PRESENT){
         //entering extended session
         write("******************************");
         write("  TESTER_PRESENT >>> LIDR     ");
@@ -108,7 +108,7 @@ on timer t_tester_present{
         MY_DIAGNOSTIC_REQUEST_LIDAR.BYTE(7) = 0x00;
         output(MY_DIAGNOSTIC_REQUEST_LIDAR);     
     }
-    if (_ON_ == _LIDAR_TARGET_TESTER_PRESENT){
+    if (_ON_ == _LIDAR_target_TESTER_PRESENT){
         //entering extended session
         write("******************************");
         write("  TESTER_PRESENT >>> HU       ");
@@ -591,21 +591,21 @@ on timer t_stop_messages_lidar{
   10 miliseconds
 * * * * * * * * */
 on timer t_10ms{                                        //When the overflow time to timer 't_10ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_10){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_10){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                         //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_10){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_10){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_10){                                                       
+    if(_ENABLED_ == _DISPLAY_target_10){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_10){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_10){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_10){                                                                                                        
+    if(_ENABLED_ == _HU_target_10){                                                                                                        
         output();
     }
 }//end on timer t_10ms
@@ -615,21 +615,21 @@ on timer t_10ms{                                        //When the overflow time
   50 miliseconds
 * * * * * * * * */
 on timer t_50ms{                                        //When the overflow time to timer 't_50ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_50){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_50){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                         //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_50){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_50){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_50){                                                       
+    if(_ENABLED_ == _DISPLAY_target_50){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_50){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_50){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_50){                                                                                                        
+    if(_ENABLED_ == _HU_target_50){                                                                                                        
         output();
     }
 }//end on timer t_50ms
@@ -639,25 +639,25 @@ on timer t_50ms{                                        //When the overflow time
   100 miliseconds
 * * * * * * * * */
 on timer t_100ms{                                        //When the overflow time to timer 't_100s' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_100){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_100){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output(MY_CAN1_BRAKE_STS);
         output(MY_CAN2_CHIMES);
         output(MY_CAN2_BRAKE_STS);
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_100){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_100){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_100){                                                       
+    if(_ENABLED_ == _DISPLAY_target_100){                                                       
         output(MY_CAN2_DISPLAY_STATUS);
         output(MY_CAN2_DISPLAY_THEFT);
     }
-    if(_ENABLED_ == _LIDAR_TARGET_100){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_100){                                                                                                       
         output(MY_CAN1_CRASH_WARNING);
         output(MY_CAN2_CRASH_WARNING);
     }
-    if(_ENABLED_ == _HU_TARGET_100){                                                                                                        
+    if(_ENABLED_ == _HU_target_100){                                                                                                        
         output(MY_CAN2_HU_CHIMES);
         output(MY_CAN2_HU_STATUS);
     }
@@ -668,21 +668,21 @@ on timer t_100ms{                                        //When the overflow tim
   150 miliseconds
 * * * * * * * * */
 on timer t_150ms{                                        //When the overflow time to timer 't_150ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_150){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_150){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_150){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_150){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_150){                                                       
+    if(_ENABLED_ == _DISPLAY_target_150){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_150){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_150){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_150){                                                                                                        
+    if(_ENABLED_ == _HU_target_150){                                                                                                        
         output();
     }
 }//end on timer t_150ms
@@ -692,21 +692,21 @@ on timer t_150ms{                                        //When the overflow tim
   200 miliseconds
 * * * * * * * * */
 on timer t_200ms{                                        //When the overflow time to timer 't_200ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_200){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_200){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_200){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_200){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_200){                                                       
+    if(_ENABLED_ == _DISPLAY_target_200){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_200){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_200){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_200){                                                                                                        
+    if(_ENABLED_ == _HU_target_200){                                                                                                        
         output();
     }
 }//end on timer t_200ms
@@ -716,21 +716,21 @@ on timer t_200ms{                                        //When the overflow tim
   250 miliseconds
 * * * * * * * * */
 on timer t_250ms{                                        //When the overflow time to timer 't_250ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_250){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_250){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_250){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_250){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_250){                                                       
+    if(_ENABLED_ == _DISPLAY_target_250){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_250){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_250){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_250){                                                                                                        
+    if(_ENABLED_ == _HU_target_250){                                                                                                        
         output();
     }
 }//end on timer t_250ms
@@ -740,21 +740,21 @@ on timer t_250ms{                                        //When the overflow tim
   300 miliseconds
 * * * * * * * * */
 on timer t_300ms{                                        //When the overflow time to timer 't_300ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_300){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_300){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_300){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_300){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_300){                                                       
+    if(_ENABLED_ == _DISPLAY_target_300){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_300){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_300){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_300){                                                                                                        
+    if(_ENABLED_ == _HU_target_300){                                                                                                        
         output();
     }
 }//end on timer t_300ms
@@ -764,21 +764,21 @@ on timer t_300ms{                                        //When the overflow tim
   350 miliseconds
 * * * * * * * * */
 on timer t_350ms{                                        //When the overflow time to timer 't_350ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_350){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_350){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_350){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_350){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_350){                                                       
+    if(_ENABLED_ == _DISPLAY_target_350){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_350){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_350){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_350){                                                                                                        
+    if(_ENABLED_ == _HU_target_350){                                                                                                        
         output();
     }
 }//end on timer t_350ms
@@ -788,21 +788,21 @@ on timer t_350ms{                                        //When the overflow tim
   400 miliseconds
 * * * * * * * * */
 on timer t_400ms{                                        //When the overflow time to timer 't_400ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_400){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_400){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_400){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_400){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_400){                                                       
+    if(_ENABLED_ == _DISPLAY_target_400){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_400){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_400){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_400){                                                                                                        
+    if(_ENABLED_ == _HU_target_400){                                                                                                        
         output();
     }
 }//end on timer t_400ms
@@ -812,21 +812,21 @@ on timer t_400ms{                                        //When the overflow tim
   450 miliseconds
 * * * * * * * * */
 on timer t_450ms{                                        //When the overflow time to timer 't_450ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_450){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_450){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_450){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_450){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_450){                                                       
+    if(_ENABLED_ == _DISPLAY_target_450){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_450){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_450){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_450){                                                                                                        
+    if(_ENABLED_ == _HU_target_450){                                                                                                        
         output();
     }
 }//end on timer t_450ms
@@ -836,7 +836,7 @@ on timer t_450ms{                                        //When the overflow tim
   500 miliseconds
 * * * * * * * * */
 on timer t_500ms{                                        //When the overflow time to timer 't_500ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output(MY_CAN1_VIN);
@@ -845,16 +845,16 @@ on timer t_500ms{                                        //When the overflow tim
         output(MY_CAN2_VIN);
         output(MY_CAN2_SPEED);
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_500){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_500){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_500){                                                       
+    if(_ENABLED_ == _DISPLAY_target_500){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_500){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_500){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_500){                                                                                                        
+    if(_ENABLED_ == _HU_target_500){                                                                                                        
         output();
     }
 }//end on timer t_500ms
@@ -864,21 +864,21 @@ on timer t_500ms{                                        //When the overflow tim
   700 miliseconds
 * * * * * * * * */
 on timer t_700ms{                                        //When the overflow time to timer 't_700ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_700){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_700){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_700){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_700){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_700){                                                       
+    if(_ENABLED_ == _DISPLAY_target_700){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_700){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_700){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_700){                                                                                                        
+    if(_ENABLED_ == _HU_target_700){                                                                                                        
         output();
     }
 }//end on timer t_700ms
@@ -888,21 +888,21 @@ on timer t_700ms{                                        //When the overflow tim
   750 miliseconds
 * * * * * * * * */
 on timer t_750ms{                                        //When the overflow time to timer 't_750ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_750){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_750){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                          //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_750){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_750){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_750){                                                       
+    if(_ENABLED_ == _DISPLAY_target_750){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_750){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_750){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_750){                                                                                                        
+    if(_ENABLED_ == _HU_target_750){                                                                                                        
         output();
     }
 }//end on timer t_750ms
@@ -912,24 +912,24 @@ on timer t_750ms{                                        //When the overflow tim
   1000 miliseconds
 * * * * * * * * */
 on timer t_1000ms{                                        //When the overflow time to timer 't_1000ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_1000){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_1000){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                           //and perform your routine (sent the message)!
 
         output(MY_CAN1_GATEWAY_STS_DOORS);
         output(MY_CAN2_GATEWAY_STS_DOORS);
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_1000){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_1000){                                                                                                        
         output(MY_CAN1_ODOMETER);
         output(MY_CAN1_TRIP_STATUS);
         output(MY_CAN2_TRIP_STATUS);
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_1000){                                                       
+    if(_ENABLED_ == _DISPLAY_target_1000){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_1000){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_1000){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_1000){                                                                                                        
+    if(_ENABLED_ == _HU_target_1000){                                                                                                        
         output();
     }
 }//end on timer t_1000ms
@@ -939,21 +939,21 @@ on timer t_1000ms{                                        //When the overflow ti
   1500 miliseconds
 * * * * * * * * */
 on timer t_1500ms{                                        //When the overflow time to timer 't_1500ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_1500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_1500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                           //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_1500){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_1500){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_1500){                                                       
+    if(_ENABLED_ == _DISPLAY_target_1500){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_1500){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_1500){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_1500){                                                                                                        
+    if(_ENABLED_ == _HU_target_1500){                                                                                                        
         output();
     }
 }//end on timer t_1500ms
@@ -963,22 +963,22 @@ on timer t_1500ms{                                        //When the overflow ti
   2000 miliseconds
 * * * * * * * * */
 on timer t_2000ms{                                        //When the overflow time to timer 't_2000ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_2000){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_2000){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                           //and perform your routine (sent the message)!
 
         output(MY_CAN1_GATEWAY_STS_ENG);
         output(MY_CAN2_GATEWAY_STS_ENG)
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_2000){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_2000){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_2000){                                                       
+    if(_ENABLED_ == _DISPLAY_target_2000){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_2000){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_2000){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_2000){                                                                                                        
+    if(_ENABLED_ == _HU_target_2000){                                                                                                        
         output();
     }
 }//end on timer t_2000ms
@@ -988,21 +988,21 @@ on timer t_2000ms{                                        //When the overflow ti
   2500 miliseconds
 * * * * * * * * */
 on timer t_2500ms{                                        //When the overflow time to timer 't_2500ms' occurs, so.:.
-    if(_ENABLED_ == _GATEWAY_TARGET_2500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
+    if(_ENABLED_ == _GATEWAY_target_2500){                //verify which ECU_TARGET are enabled, in this case: gateway was ENABLED?                                           
                                                           //and perform your routine (sent the message)!
 
         output();
     }
-    if(_ENABLED_ == _CLUSTER_TARGET_2500){                                                                                                        
+    if(_ENABLED_ == _CLUSTER_target_2500){                                                                                                        
         output();
     }
-    if(_ENABLED_ == _DISPLAY_TARGET_2500){                                                       
+    if(_ENABLED_ == _DISPLAY_target_2500){                                                       
         output();
     }
-    if(_ENABLED_ == _LIDAR_TARGET_2500){                                                                                                       
+    if(_ENABLED_ == _LIDAR_target_2500){                                                                                                       
         output();
     }
-    if(_ENABLED_ == _HU_TARGET_2500){                                                                                                        
+    if(_ENABLED_ == _HU_target_2500){                                                                                                        
         output();
     }
 }//end on timer t_2500ms

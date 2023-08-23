@@ -6,24 +6,24 @@ variables{
     /*
       TIMER event control
     */
-    const int      T_10ms_      =     10;
-    const int      T_50ms_      =     50;
-    const int      T_100ms_     =    100;
-    const int      T_150ms_     =    150;
-    const int      T_200ms_     =    200;
-    const int      T_250ms_     =    250;
-    const int      T_300ms_     =    300;
-    const int      T_350ms_     =    350;
-    const int      T_400ms_     =    400;
-    const int      T_450ms_     =    450;
-    const int      T_500ms_     =    500;
-    const int      T_700ms_     =    700;
-    const int      T_750ms_     =    750;
-    const int      T_1000ms_    =   1000;
-    const int      T_1500ms_    =   1500;
-    const int      T_2000ms_    =   2000;
-    const int      T_2500ms_    =   2500;
-    const int      T_VIN_TIMER_ =    500;
+    const int      _10ms_      =     10;
+    const int      _50ms_      =     50;
+    const int      _100ms_     =    100;
+    const int      _150ms_     =    150;
+    const int      _200ms_     =    200;
+    const int      _250ms_     =    250;
+    const int      _300ms_     =    300;
+    const int      _350ms_     =    350;
+    const int      _400ms_     =    400;
+    const int      _450ms_     =    450;
+    const int      _500ms_     =    500;
+    const int      _700ms_     =    700;
+    const int      _750ms_     =    750;
+    const int      _1000ms_    =   1000;
+    const int      _1500ms_    =   1500;
+    const int      _2000ms_    =   2000;
+    const int      _2500ms_    =   2500;
+    const int      _VIN_TIMER_ =    500;
 
 
     /*
@@ -76,7 +76,7 @@ variables{
     /*******************************************************************/
     char vin_part_can1 = 0x00;
     char vin_part_can2 = 0x00;
-    
+
     char  _choosed_ecu;
     char  _GATEWAY_flag_stop   = _OFF_;
     char  _GATEWAY_diag_case   = _DEFAULT_SESSION_;
@@ -141,104 +141,103 @@ variables{
         ECU TIMER TARGET 
     */
     //GATEWAY
-    char _GATEWAY_TARGET;
-    char _GATEWAY_TARGET_VIN;
-    char _GATEWAY_TARGET_10;
-    char _GATEWAY_TARGET_50;
-    char _GATEWAY_TARGET_100; 
-    char _GATEWAY_TARGET_150;
-    char _GATEWAY_TARGET_200;
-    char _GATEWAY_TARGET_250;
-    char _GATEWAY_TARGET_300;
-    char _GATEWAY_TARGET_350;
-    char _GATEWAY_TARGET_400;
-    char _GATEWAY_TARGET_450;
-    char _GATEWAY_TARGET_500;
-    char _GATEWAY_TARGET_700;
-    char _GATEWAY_TARGET_750;
-    char _GATEWAY_TARGET_1000;
-    char _GATEWAY_TARGET_1500;
-    char _GATEWAY_TARGET_2000;
-    char _GATEWAY_TARGET_2500;
+    char _GATEWAY_target;
+    char _GATEWAY_target_VIN;
+    char _GATEWAY_target_10;
+    char _GATEWAY_target_50;
+    char _GATEWAY_target_100; 
+    char _GATEWAY_target_150;
+    char _GATEWAY_target_200;
+    char _GATEWAY_target_250;
+    char _GATEWAY_target_300;
+    char _GATEWAY_target_350;
+    char _GATEWAY_target_400;
+    char _GATEWAY_target_450;
+    char _GATEWAY_target_500;
+    char _GATEWAY_target_700;
+    char _GATEWAY_target_750;
+    char _GATEWAY_target_1000;
+    char _GATEWAY_target_1500;
+    char _GATEWAY_target_2000;
+    char _GATEWAY_target_2500;
 
     //CLUSTER
-    char _CLUSTER_TARGET;
-    char _CLUSTER_TARGET_10;
-    char _CLUSTER_TARGET_50;
-    char _CLUSTER_TARGET_100; 
-    char _CLUSTER_TARGET_150;
-    char _CLUSTER_TARGET_200;
-    char _CLUSTER_TARGET_250;
-    char _CLUSTER_TARGET_300;
-    char _CLUSTER_TARGET_350;
-    char _CLUSTER_TARGET_400;
-    char _CLUSTER_TARGET_450;
-    char _CLUSTER_TARGET_500;
-    char _CLUSTER_TARGET_700;
-    char _CLUSTER_TARGET_750;
-    char _CLUSTER_TARGET_1000;
-    char _CLUSTER_TARGET_1500;
-    char _CLUSTER_TARGET_2000;
-    char _CLUSTER_TARGET_2500;
+    char _CLUSTER_target;
+    char _CLUSTER_target_10;
+    char _CLUSTER_target_50;
+    char _CLUSTER_target_100; 
+    char _CLUSTER_target_150;
+    char _CLUSTER_target_200;
+    char _CLUSTER_target_250;
+    char _CLUSTER_target_300;
+    char _CLUSTER_target_350;
+    char _CLUSTER_target_400;
+    char _CLUSTER_target_450;
+    char _CLUSTER_target_500;
+    char _CLUSTER_target_700;
+    char _CLUSTER_target_750;
+    char _CLUSTER_target_1000;
+    char _CLUSTER_target_1500;
+    char _CLUSTER_target_2000;
+    char _CLUSTER_target_2500;
 
     //DISPLAY
-    char _DISPLAY_TARGET;
-    char _DISPLAY_TARGET_10;
-    char _DISPLAY_TARGET_50;
-    char _DISPLAY_TARGET_100; 
-    char _DISPLAY_TARGET_150;
-    char _DISPLAY_TARGET_200;
-    char _DISPLAY_TARGET_250;
-    char _DISPLAY_TARGET_300;
-    char _DISPLAY_TARGET_350;
-    char _DISPLAY_TARGET_400;
-    char _DISPLAY_TARGET_450;
-    char _DISPLAY_TARGET_500;
-    char _DISPLAY_TARGET_700;
-    char _DISPLAY_TARGET_750;
-    char _DISPLAY_TARGET_1000;
-    char _DISPLAY_TARGET_1500;
-    char _DISPLAY_TARGET_2000;
-    char _DISPLAY_TARGET_2500;
+    char _DISPLAY_target;
+    char _DISPLAY_target_10;
+    char _DISPLAY_target_50;
+    char _DISPLAY_target_100; 
+    char _DISPLAY_target_150;
+    char _DISPLAY_target_200;
+    char _DISPLAY_target_250;
+    char _DISPLAY_target_300;
+    char _DISPLAY_target_350;
+    char _DISPLAY_target_400;
+    char _DISPLAY_target_450;
+    char _DISPLAY_target_500;
+    char _DISPLAY_target_700;
+    char _DISPLAY_target_750;
+    char _DISPLAY_target_1000;
+    char _DISPLAY_target_1500;
+    char _DISPLAY_target_2000;
+    char _DISPLAY_target_2500;
 
     //LIDAR
-    char _LIDAR_TARGET;
-    char _LIDAR_TARGET_10;
-    char _LIDAR_TARGET_50;
-    char _LIDAR_TARGET_100; 
-    char _LIDAR_TARGET_150;
-    char _LIDAR_TARGET_200;
-    char _LIDAR_TARGET_250;
-    char _LIDAR_TARGET_300;
-    char _LIDAR_TARGET_350;
-    char _LIDAR_TARGET_400;
-    char _LIDAR_TARGET_450;
-    char _LIDAR_TARGET_500;
-    char _LIDAR_TARGET_700;
-    char _LIDAR_TARGET_750;
-    char _LIDAR_TARGET_1000;
-    char _LIDAR_TARGET_1500;
-    char _LIDAR_TARGET_2000;
-    char _LIDAR_TARGET_2500;
+    char _LIDAR_target;
+    char _LIDAR_target_10;
+    char _LIDAR_target_50;
+    char _LIDAR_target_100; 
+    char _LIDAR_target_150;
+    char _LIDAR_target_200;
+    char _LIDAR_target_250;
+    char _LIDAR_target_300;
+    char _LIDAR_target_350;
+    char _LIDAR_target_400;
+    char _LIDAR_target_450;
+    char _LIDAR_target_500;
+    char _LIDAR_target_700;
+    char _LIDAR_target_750;
+    char _LIDAR_target_1000;
+    char _LIDAR_target_1500;
+    char _LIDAR_target_2000;
+    char _LIDAR_target_2500;
 
     //HU
-    char _HU_TARGET;
-    char _HU_TARGET_10;
-    char _HU_TARGET_50;
-    char _HU_TARGET_100; 
-    char _HU_TARGET_150;
-    char _HU_TARGET_200;
-    char _HU_TARGET_250;
-    char _HU_TARGET_300;
-    char _HU_TARGET_350;
-    char _HU_TARGET_400;
-    char _HU_TARGET_450;
-    char _HU_TARGET_500;
-    char _HU_TARGET_700;
-    char _HU_TARGET_750;
-    char _HU_TARGET_1000;
-    char _HU_TARGET_1500;
-    char _HU_TARGET_2000;
-    char _HU_TARGET_2500;
-
+    char _HU_target;
+    char _HU_target_10;
+    char _HU_target_50;
+    char _HU_target_100; 
+    char _HU_target_150;
+    char _HU_target_200;
+    char _HU_target_250;
+    char _HU_target_300;
+    char _HU_target_350;
+    char _HU_target_400;
+    char _HU_target_450;
+    char _HU_target_500;
+    char _HU_target_700;
+    char _HU_target_750;
+    char _HU_target_1000;
+    char _HU_target_1500;
+    char _HU_target_2000;
+    char _HU_target_2500;
 }
