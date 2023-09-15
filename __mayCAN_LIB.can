@@ -63,7 +63,7 @@ includes
 
 variables
 {
-  char translate_dcsd[30] = "";                          //translate the 'int' values from the DBC file
+  char translate_DISP[30] = "";                          //translate the 'int' values from the DBC file
   char translate_hu[30]   = "";                         
   
   const int HU_TIMEOUT_COLDBOOT  = 30000;
@@ -153,16 +153,16 @@ variables
   const int 	  LDR_READING_BLACK = 0x00;			        //DISPLAY_OFF
   const int 	  LDR_READING_WHITE = 0xff;			        //DISPLAY_ON
   const int    LDR_READING_BLUE  = 0x15;              //rvc mnemonic
-  const int    LDR_READING_BACKLIGHT = 0x30;          //backlight mnemonic (dcsd in error)
+  const int    LDR_READING_BACKLIGHT = 0x30;          //backlight mnemonic (DISP in error)
   const int    LDR_READING_OTHERS = 0x20;
   const double  LDR_DAY_PARAMETER = 0x10;			        //not used
   	    int 	  LDR_STATUS_NOW;				                //store the last value read by LDR
         double  LDR_Value = -1.00; 	                  //current value read by analog imput
     
-        msTimer timerToCheckDCSDNetSts;
+        msTimer timerToCheckDISPNetSts;
   const int baseTimeHU = 500;
         int timeMultiplier = 20;
-  const long timeNetDCSD = 6000;
+  const long timeNetDISP = 6000;
         int flagOP86 = 0;
 }
 
@@ -282,18 +282,18 @@ export void Set_Lever_Position(int position){
 
 
 //
-//Check the DCSD display signals
+//Check the DISP display signals
 //---------------------------------------------------------------------------------------------------------------------------
-void Check_DCSD_DISCenterStack_Sts(int dcsd_disp_sts){
+void Check_DISP_DISCenterStack_Sts(int DISP_disp_sts){
   //getSignalDescriptionForValue(signal_with_the_same_name_from_the_dbc, variable_2be_translated, variable_2b_receive_translated_value, 2048);
-    getSignalDescriptionForValue(DCSD_DISP_STAT, dcsd_disp_sts, translate_dcsd, 2048);
-    if($DCSD_DISP_STAT == dcsd_disp_sts){
-      testStepPass("Check_DCSD_Initialization", "DCSD_DISP_STAT is in %s", translate_dcsd);
+    getSignalDescriptionForValue(DISP_DISP_STAT, DISP_disp_sts, translate_DISP, 2048);
+    if($DISP_DISP_STAT == DISP_disp_sts){
+      testStepPass("Check_DISP_Initialization", "DISP_DISP_STAT is in %s", translate_DISP);
     } 
     else{
-      testStepFail("Check_DCSD_Initialization", "DCSD_DISP_STAT is in CRAZY BEHAVIOUR MODE");
+      testStepFail("Check_DISP_Initialization", "DISP_DISP_STAT is in CRAZY BEHAVIOUR MODE");
     }    
-    strncpy(translate_dcsd, "                              ", 30);
+    strncpy(translate_DISP, "                              ", 30);
 }
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -468,7 +468,7 @@ void ScreenOffButton(int time_press){
 void Check_HU_Initialization(int timeout){
     if($PowerSts_Telematic == Full_Operation){
       write("HU is already in FULL_OP");
-      //checar se o dcsd esta em normal_mode
+      //checar se o DISP esta em normal_mode
       //CrossCheckScreenSts(DISPLAY_NORMAL_MODE, _ON);
       testStepPass("Check_HU_Initialization", "HU is already in Full-Operation Mode");   
     }         
@@ -519,7 +519,7 @@ void Check_HU_PowerSts(){
     }  
      
     //if HU is not in Full Operation, perhaps it may stay in other state that we can try a recovery. 
-    //Because the focus here is the DCSD and 'fuck' to the HU.
+    //Because the focus here is the DISP and 'fuck' to the HU.
     //So, first let's wait for more 1 second (maybe HU is so slug).
     else{ 
         write("HU is so slug... lets wait for more 1 sec!!!");
@@ -646,7 +646,7 @@ void Stress_Test_Op_92(){
  CrossCheckScreenSts(DISPLAY_RVC, _RR_CMRA);
  //CrossCheckScreenSts(DISPLAY_RVC, _ON);   <<<------------------ COMO QUE ESSA PORRA ESTAVA FUNCIONANDO? IMPOSSIVEL.
  LDR_Check();
- CrossCheck_SignalVoltage($DCSD_DISP_STAT, LDR_STATUS_NOW);
+ CrossCheck_SignalVoltage($DISP_DISP_STAT, LDR_STATUS_NOW);
  testWaitForTimeout(5000);
  
   
@@ -660,7 +660,7 @@ void Stress_Test_Op_92(){
  ADB_WhiteRaster();
  testWaitForTimeout(5000);
  LDR_Check();
- CrossCheck_SignalVoltage($DCSD_DISP_STAT, LDR_STATUS_NOW);
+ CrossCheck_SignalVoltage($DISP_DISP_STAT, LDR_STATUS_NOW);
  testWaitForTimeout(5000);
   
 //  //sleep for 15seconds
@@ -697,36 +697,36 @@ void LDR_Check(){
 //----------------------------------------------------------------------------
 //CrossCheck_SignalVoltage
 //---------------------------------------------------------------------------------------------------------------------------
-void CrossCheck_SignalVoltage(int dcsdSts, int ldrSts){
-  switch(dcsdSts){
+void CrossCheck_SignalVoltage(int DISPSts, int ldrSts){
+  switch(DISPSts){
     case _ON:{
                 if(ldrSts == LDR_READING_WHITE){
-                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                  testStepPass("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are match");
                 }
                 else 
                 {
-                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                  testStepFail("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are NOT match");
                 }
                 break;
              
     }  
     case _RR_CMRA:{
                 if(ldrSts == LDR_READING_BLUE){
-                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                  testStepPass("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are match");
                 }
                 else 
                 {
-                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                  testStepFail("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are NOT match");
                 }
                 break;
     }
     case DISPLAY_OFF:{
                 if(ldrSts == LDR_READING_BLACK){
-                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                  testStepPass("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are match");
                 }
                 else 
                 {
-                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                  testStepFail("CrossCheck_SignalVoltage:", "DISP CAN signal and LDR value are NOT match");
                 }
                 break;
     }
@@ -761,24 +761,24 @@ void CrossCheck_SignalVoltage(int dcsdSts, int ldrSts){
 */
 //---------------------------------------------------------------------------------------------------------------------------
 //CrossCheckScreenSts(RVC, ON)
-void CrossCheckScreenSts(int hu_screen_sts, int dcsd_screen_sts){
-  testWaitForTimeout(1500); //TEMPO PRO DCSD MUDAR DE ESTADO
+void CrossCheckScreenSts(int hu_screen_sts, int DISP_screen_sts){
+  testWaitForTimeout(1500); //TEMPO PRO DISP MUDAR DE ESTADO
   getSignalDescriptionForValue(TGW_DISP_STATSts, hu_screen_sts,    translate_hu,   2048);
-  getSignalDescriptionForValue(DCSD_DISP_STAT,   dcsd_screen_sts,  translate_dcsd, 2048);
+  getSignalDescriptionForValue(DISP_DISP_STAT,   DISP_screen_sts,  translate_DISP, 2048);
   switch(hu_screen_sts){
       case DISPLAY_NORMAL_MODE:{
-                         if($DCSD_DISP_STAT == _ON){testStepPass("CrossCheckScreenSts", " DCSD and HU are match");}
-                         else{testStepFail("CrossCheckScreenSts", " DCSD is equal to %s and HU is equal to %s", translate_dcsd, translate_hu);}
+                         if($DISP_DISP_STAT == _ON){testStepPass("CrossCheckScreenSts", " DISP and HU are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and HU is equal to %s", translate_DISP, translate_hu);}
                          break;
                        }
       case DISPLAY_RVC:{
-                         if($DCSD_DISP_STAT == _RR_CMRA){testStepPass("CrossCheckScreenSts", " DCSD and HU are match");}
-                         else{testStepFail("CrossCheckScreenSts", " DCSD is equal to %s and HU is equal to %s", translate_dcsd, translate_hu);}
+                         if($DISP_DISP_STAT == _RR_CMRA){testStepPass("CrossCheckScreenSts", " DISP and HU are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and HU is equal to %s", translate_DISP, translate_hu);}
                          break;
                        }
       default: {write("Malandro"); break;}
   }
-  strncpy(translate_dcsd, "                              ", 30);
+  strncpy(translate_DISP, "                              ", 30);
   strncpy(translate_hu,   "                              ", 30);
 }
 //---------------------------------------------------------------------------------------------------------------------------//  
@@ -793,9 +793,9 @@ void Stress_Test_Op_86(){
   write("=========================================================");
   flagOP86 = 1;
   CheckVehicleConditions();
-  setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+  setTimer(timerToCheckDISPNetSts, timeNetDISP);
   
-  //espera 10 seg (nisso o 'on message' esta contando as mensages do dcsd)
+  //espera 10 seg (nisso o 'on message' esta contando as mensages do DISP)
   testWaitForTimeout(timeMultiplier*baseTimeHU);
   
   ScreenOffButton(TIME_SHORT_PRESS);
@@ -810,7 +810,7 @@ void Stress_Test_Op_86(){
   ScreenOffButton(TIME_SHORT_PRESS);
   testWaitForTimeout(timeMultiplier*baseTimeHU);
   
-  cancelTimer(timerToCheckDCSDNetSts);
+  cancelTimer(timerToCheckDISPNetSts);
   flagOP86 = 0;
   VehicleGetSleep();
   
@@ -819,20 +819,20 @@ void Stress_Test_Op_86(){
   testWaitForTimeout(15000);
 }
 
-on timer timerToCheckDCSDNetSts
+on timer timerToCheckDISPNetSts
 {
-  testStepFail("Check DCSD Network Sts", "DCSD stop sending messages");
+  testStepFail("Check DISP Network Sts", "DISP stop sending messages");
 }
 
 on message DIS_CENTERSTACK{
   if(flagOP86){
-    setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+    setTimer(timerToCheckDISPNetSts, timeNetDISP);
   }
 }
 
-on message NWM_DCSD{
+on message NWM_DISP{
   if(flagOP86){
-    setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+    setTimer(timerToCheckDISPNetSts, timeNetDISP);
   }
 }
 //---------------------------------------------------------------------------------------------------------------------------
@@ -869,8 +869,8 @@ void op95(){
       7000
    );
   
-  //2 - Mandar o idiota clicar na tela
-  //2.1 -aguardar 5 segundos nessa tela branca
+  //2 - Request the user to click over screen
+  //2.1 - wait 5 sec in white raster
   testWaitForTimeout(5000);
   
   // robo --> clique na tela...
@@ -883,7 +883,7 @@ void op95(){
   //2.2 - esperar 5 segundos na tela branca
   testWaitForTimeout(5000);
   
-  //como o dcsd nao deve estar na cor banca, preciso checar se de fato o que o LDR e o DCSD estao 'lendo'...      
+  //como o DISP nao deve estar na cor banca, preciso checar se de fato o que o LDR e o DISP estao 'lendo'...      
   //3 - Checando o LDR
    LDR_Check();
    if(LDR_STATUS_NOW == LDR_READING_WHITE){
