@@ -1,0 +1,908 @@
+/*@!Encoding:1252*/
+
+/*===========================================================================================================================
+===================                                       SUMMARY                                        ====================
+=============================================================================================================================
+/
+/  @sysvar::__Project__app_layer_::Ign_Sts = 0x01 --> meaning keyOn
+/           I - NetOn();
+/                         @sysvar::IL::Clamp15 = 0x01;     //ENABLE Interactive Layer (KL15)      
+/                         @sysvar::IL::Clamp30 = 0x01;     //ENABLE KL30
+/                         $ActiveLoadMaster = 0x01;        //active_loads_master
+/                         $SystemCommand    = 0x02;        //stay_active
+/                         $MainWakeSts_BCM  = 0x01;        //active
+/                         setTimerCyclic(t_vin_bh,1000);   //set vinTimer to bhcan
+/                         setTimerCyclic(t_vin_c1,1000);   //set vinTimer to ccan1
+/
+/
+/           II - KeyOn();
+/                         cancelTimer(t_TimeToSleep);
+/                         cancelTimer(t_netOff);
+/                         NetOn();
+/                         $BHCAN_1::BCM::STATUS_BH_BCM1::OperationalModeSts = 0x04;     //ign On
+/                         $CCAN1_2::BCM::BCM_COMMAND::OperationalModeSts    = 0x04;     //ign On
+/                         $BHCAN_1::BCM::STATUS_BH_BCM2::CmdIgnSts          = 0x04;     //ign On
+/                         $CCAN1_2::BCM::BODY2::CmdIgnSts                   = 0x04;     //ign On
+/
+/                         $BHCAN_1::BCM::BCM_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter bh
+/                         $CCAN1_2::BCM::BCM_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter c1
+/
+/
+/
+/  @sysvar::__Project__app_layer_::Ign_Sts = 0x00 --> meaning keyOff
+/           III - KeyOff();
+/                           @sysvar::__Project__app_layer_::ShiftLeverPosition = Park;
+/                           $BHCAN_1::BCM::STATUS_BH_BCM1::OperationalModeSts = 0x02;   //ign off
+/                           $CCAN1_2::BCM::BCM_COMMAND::OperationalModeSts = 0x02;      //ign off
+/                           $BHCAN_1::BCM::STATUS_BH_BCM2::CmdIgnSts = 0x01;            //ign off
+/                           $CCAN1_2::BCM::BODY2::CmdIgnSts = 0x01;                     //ign off
+/  
+/                           setTimer(t_netOff, T_NET_OFF);                              //after 8 seconds to program the bus to sleep
+/                                   NetOff();               
+/
+/
+/           IV - NetOff();
+/                           $ActiveLoadMaster = 0x00;               //no_active_loads_master
+/                           $SystemCommand    = 0x03;               //sleep
+/                           $MainWakeSts_BCM  = 0x00;               //not_active
+/                           setTimer(t_TimeToSleep,1000);           //set timer to sleep in 1 sec
+/                                     cancelTimer(t_vin_bh);        //cancel vin from bhcan
+/                                     cancelTimer(t_vin_c1);        //cancel vin from ccan1
+/                                     @sysvar::IL::Clamp15 = 0x00;          //disabling Interactive Layer (kernel)      
+/                                     @sysvar::IL::Clamp30 = 0x00;          //disabling +30
+/
+*/
+
+includes
+{
+  
+}
+
+variables
+{
+  char translate_dcsd[30] = "";                          //translate the 'int' values from the DBC file
+  char translate_hu[30]   = "";                         
+  
+  const int HU_TIMEOUT_COLDBOOT  = 30000;
+  const int TIME_SHORT_PRESS     =   250;
+  const int TIME_LONG_PRESS      =  3000;
+  const int TINE_LONG_LONG_PRESS = 15000;
+                              
+  const int LEVER_POSITION_P = 1;
+  const int LEVER_POSITION_R = 2;
+  const int LEVER_POSITION_N = 3;
+  const int LEVER_POSITION_D = 4;
+  
+  const int PRESSED = 0x01;
+  const int RELEASED = 0x00;
+  
+  
+  /* ********************/
+  /*  STATUS_TELEMATIC  */
+  /* ********************/
+  //AntitheftSts
+  const char ANTI_THEFT_NOT_SUCCESS = 0x00;
+  const char ANTI_THEFT_IN_PROGRESS = 0x01;
+  const char ANTI_THEFT_SUCCESS     = 0x02;
+        char ANTI_THEFT_STS         = ANTI_THEFT_IN_PROGRESS;
+  //MuteSts
+  const char MUTE_STS_NOT_MUTED = 0x00;
+  const char MUTE_STS_MUTED     = 0x01;
+        char MUTE_STS           = MUTE_STS_NOT_MUTED;
+  //PowerModeSts_Telematic
+  const char PWR_MODE_STS_STANDARD          = 0x00;
+  const char PWR_MODE_STS_LOGISTIC_MODE_ON  = 0x01;
+  const char PWR_MODE_STS_LOGISTIC_MODE_PR  = 0x02;
+  const char PWR_MODE_NOT_USED              = 0x03;
+        char PWE_MODE_STS_TELEMATIC         = PWR_MODE_STS_STANDARD;
+  //PowerSts_Telematic
+  const char  HU_SLEEP                  = 0x00;
+  const char  HU_STAND_BY               = 0x01;
+  const char  HU_TIMED                  = 0x02;
+  const char  HU_IDLE                   = 0x03;
+  const char  HU_FULL_OPERATIONAL       = 0x04;
+  const char  HU_LOGISTIC_ON            = 0x05;
+  const char  HU_BENCH                  = 0x06; 
+  const char  HU_PARTIAL_OPERATION      = 0x07;
+        char  PWR_STATUS_TELEMATIC      = HU_SLEEP;
+        char  LAST_PWR_STATUS_TELEMATIC = HU_SLEEP;
+  //AUDIOSts_Telematic
+  const char  AUDIO_STS_AVAILABLE     = 0x01;
+  const char  AUDIO_STS_NOT_AVAILABLE = 0x02;
+  const char  AUDIO_STS_SNA           = 0x03;
+        char  AUDIO_STS_TELEMATIC     = AUDIO_STS_AVAILABLE;
+  //CurrentSource
+  const char  CURRENT_SOURCE_AM       = 0x00;
+  const char  CURRENT_SOURCE_FM       = 0x01;
+  const char  CURRENT_SOURCE_TGW_USB1 = 19;
+        char  CURRENT_SOURCE          = CURRENT_SOURCE_FM;
+  //MicrophoneFailSts
+  const char  MICROPHONE_FAIL_NOT_PRESENT = 0x00;
+  const char  MICROPHONE_FAIL_PRESENT     = 0x01;
+        char  MICROPHONE_FAIL_STS         = MICROPHONE_FAIL_NOT_PRESENT;
+  
+  
+  /* ****************************************/
+  /*  TELEMATIC_DISPLAY2.TGW_DISP_STATSts  */
+  /* ****************************************/
+  const int DISPLAY_OFF           = 0;
+  const int DISPLAY_NORMAL_MODE   = 2;
+  const int DISPLAY_RVC           = 7;
+  const int DISPLAY_BLANK         = 8;
+  const int DISPLAY_SPLASH_SCREEN = 9;
+  const int DISPLAY_SNA          = 15;
+
+  
+  /* ********************/
+  /* DIS_CENTERSTACK    */
+  /* ********************/
+  const int _OFF       = 0;
+  const int _ON        = 1;
+  const int _BLANK     = 2;
+  const int _RR_CMRA   = 3;
+  const int _DISP_HOT  = 4;
+  const int _SNA       = 7;
+  
+  
+  /* ********************/
+  /* LDR                */
+  /* ********************/
+  const int 	  LDR_READING_BLACK = 0x00;			        //DISPLAY_OFF
+  const int 	  LDR_READING_WHITE = 0xff;			        //DISPLAY_ON
+  const int    LDR_READING_BLUE  = 0x15;              //rvc mnemonic
+  const int    LDR_READING_BACKLIGHT = 0x30;          //backlight mnemonic (dcsd in error)
+  const int    LDR_READING_OTHERS = 0x20;
+  const double  LDR_DAY_PARAMETER = 0x10;			        //not used
+  	    int 	  LDR_STATUS_NOW;				                //store the last value read by LDR
+        double  LDR_Value = -1.00; 	                  //current value read by analog imput
+    
+        msTimer timerToCheckDCSDNetSts;
+  const int baseTimeHU = 500;
+        int timeMultiplier = 20;
+  const long timeNetDCSD = 6000;
+        int flagOP86 = 0;
+}
+
+export void MayPowerSupplyCAPL(int out_channel, float voltage, float current, float time_sleep, int sts){
+  //constant
+  const int ACTIVE = 1;
+  const int NOT_ACTIVE = 0;
+  char dir[256];
+  
+  //power supply setup
+  int channel = 1;
+  int channel_state = ACTIVE;
+  float voltage_level = 12.90;
+  float current_level = 5.00;
+  float time_to_wait  = 1.5;
+  
+  
+  getUserFilePath("", dir, 256);
+  //changing power supply
+  sysExecCmd("Python smps_script2.py && exit", "", dir);
+}  
+  
+
+//-----------------------------------------------
+//Check the initial conditions to start the test 
+//---------------------------------------------------------------------------------------------------------------------------
+export void CheckVehicleConditions(){                                                                           //'export' --> to make it visible into vtest studio 
+    @sysvar::IO::VN1600_1::DOUT = 1;  //desliga o led
+    @sysvar::__Project__app_layer_::Ign_Sts = 0x01;                                                                   //turning on the bench (kl15 and network messages)
+    set_Lever_Position(LEVER_POSITION_P);                                                                       //Set Park Position                                      
+    testWaitForTimeout(1500);                                                                                   //wait 1500ms to check all signals here
+    
+    if($BCM::STATUS_BH_BCM1::OperationalModeSts == BHCAN_1::STATUS_BH_BCM1.OperationalModeSts::Ignition_On){    //check if vehicle is in keyon in indeed
+        testStepPass("CheckVehicleConditions", "Vehicle is turned on");                                         //vehicle is in keyOn
+        write("As vehicle is in KEYON, lets check the HU powerSts as well");
+        Check_HU_Initialization(HU_TIMEOUT_COLDBOOT);                                                           //Check the HU   
+    }                                                                                                           //end -> vehicle is in keyon mode
+    else{      
+        testWaitForTimeout(2500);
+        testStepFail("CheckVehicleConditions", "Vehicle is NOT turned on");                                     //the vehicle is not in keyOn --> test failed 
+    }                                                                                                           //end -> vehile failed to enter in keyOn mode
+ }
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------
+//Set the ShiftPosition signals
+//---------------------------------------------------------------------------------------------------------------------------
+export void Set_Lever_Position(int position){
+    char flag_error = 0x00;
+    switch(position){
+        case LEVER_POSITION_P:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_P;  break;}
+        case LEVER_POSITION_R:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_R;  break;}
+        case LEVER_POSITION_N:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_N;  break;}
+        case LEVER_POSITION_D:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_D;  break;}
+        default:                 {flag_error = 0x01; break;}
+    }  
+    if(flag_error == 0x01){                                                         //there was error to choose the lever position
+        write("Deu zebra!");  
+        testStepFail("Set_Lever_Position", "Failed to set the leverPosition");      //error! test failed!!!
+    } 
+    else{                                                                           //there was not problem to choose the lever position...
+        if(position == LEVER_POSITION_P){                                           //if the choosed position was park, thus:
+            testWaitForTimeout(500);                                                //waiting for gateway transition time to the HU 
+            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_P){//let me check if the signal is in park
+              if($ETM::TGW_DISP_STATSts == DISPLAY_RVC){
+                testStepFail("Set_Lever_Position", "HU take too long to exit from RVC screen");  //if is still in rvc!
+              }
+              else if($ETM::TGW_DISP_STATSts != DISPLAY_RVC){
+                testStepPass("Set_Lever_Position [P]", "HU is NOT in RVC screen");  //if is still in park, ok!
+              }
+            }
+            else{                                                                   //else, we had a problem!
+                testStepFail("Set_Lever_Position", "Failed to set Park position");  //error! Test failed!!!
+            }
+        }
+        else if(position == LEVER_POSITION_R){
+            testWaitForTimeout(2500);                                               //waiting for gateway transition time to the HU
+            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_R){
+              if($ETM::TGW_DISP_STATSts == DISPLAY_RVC){
+                testStepPass("Set_Lever_Position [RVC]", "RVC");
+              }
+              else{
+                testStepFail("Set_Lever_Position", "HU is NOT in RVC screen");
+              }
+            }
+             else{
+              write("Deu zebra!");  
+              testStepFail("Set_Lever_Position", "Failed to set RVC position");
+            }
+        }       
+        else if(position == LEVER_POSITION_N){                                                  //NEUTRAL
+            testWaitForTimeout(500);                                                            //waiting for gateway transition time to the H
+            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_N){
+                testStepPass("Set_Lever_Position", "Neutral");
+            }
+            else{
+                testStepFail("Set_Lever_Position", "Failed to set Neutral position");
+            }
+        }
+        else if(position == LEVER_POSITION_D){
+            testWaitForTimeout(500);                                                            //waiting for gateway transition time to the HU          
+            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_D){
+                testStepPass("Set_Lever_Position", "Drive");
+            }
+            else{
+                testStepFail("Set_Lever_Position", "Failed to set Drive position");
+            }
+        }
+        else{
+            testReportAddWindowCapture("vTest", "", "That is the proof of the crime!!!");   //TAKE A PICTURE
+            testStepFail("Set_Lever_Position", "WTF? That is an Unknown position, dude!");
+        }
+    }
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//
+//Check the DCSD display signals
+//---------------------------------------------------------------------------------------------------------------------------
+void Check_DCSD_DISCenterStack_Sts(int dcsd_disp_sts){
+  //getSignalDescriptionForValue(signal_with_the_same_name_from_the_dbc, variable_2be_translated, variable_2b_receive_translated_value, 2048);
+    getSignalDescriptionForValue(DCSD_DISP_STAT, dcsd_disp_sts, translate_dcsd, 2048);
+    if($DCSD_DISP_STAT == dcsd_disp_sts){
+      testStepPass("Check_DCSD_Initialization", "DCSD_DISP_STAT is in %s", translate_dcsd);
+    } 
+    else{
+      testStepFail("Check_DCSD_Initialization", "DCSD_DISP_STAT is in CRAZY BEHAVIOUR MODE");
+    }    
+    strncpy(translate_dcsd, "                              ", 30);
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+//Check the HU display signals
+//---------------------------------------------------------------------------------------------------------------------------
+void Check_HU_TGW_Sts(int hu_tgw_sts){
+  //getSignalDescriptionForValue(signal_with_the_same_name_from_the_dbc, variable_2be_translated, variable_2b_receive_translated_value, 2048);
+    getSignalDescriptionForValue(TGW_DISP_STATSts, hu_tgw_sts, translate_hu, 2048);
+    if($TGW_DISP_STATSts == hu_tgw_sts){
+      testStepPass("Check_HU_Status", "TGW_DISP_STATSts is in %s", translate_hu);
+    } 
+    else{
+      testStepFail("Check_HU_Status", "TGW_DISP_STATSts is in CRAZY BEHAVIOUR MODE");
+    }    
+    strncpy(translate_hu, "                              ", 30);
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+//Set vechicle signals to get sleep mode
+//---------------------------------------------------------------------------------------------------------------------------
+export void VehicleGetSleep(){
+  @sysvar::__Project__app_layer_::Ign_Sts = 0x00;                       //turning off the bench (kl15, kl30 and network messages)
+  testWaitForTimeout(10000);                                      //waiting 10s to check if the vehicle is turned off 
+  
+  if($SystemCommand == BHCAN_1::NWM_BCM.SystemCommand::Sleep){
+    testStepPass("VehicleGetSleep", "Vehicle is in sleep mode");
+  }
+  else{
+    testWaitForTimeout(10000); 
+    if($SystemCommand == BHCAN_1::NWM_BCM.SystemCommand::Sleep){
+      testStepPass("VehicleGetSleep", "Vehicle is in sleep mode");
+    }
+    else{
+      testStepFail("VehicleGetSleep", "Vehicle not get sleep even after 20seconds net off");
+    }
+  }
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+//Start_Stress_Test
+//---------------------------------------------------------------------------------------------------------------------------
+export void Start_Stress_Test(int op_number, int cycles){
+  long i = 0;
+  testWaitForTimeout(10000);
+  switch(op_number){
+      case 86:{
+              for(i; i<cycles; i++){
+                    Stress_Test_Op_86();
+                    write("LOOP NUMBER: %d", i);
+              } 
+              i = 0;
+              break;
+             }//end CASE OP-86
+      case 92:{
+              for(i; i<cycles; i++){
+                  Stress_Test_Op_92();
+                  write("LOOP NUMBER: %d", i);
+              }
+              i = 0;
+              break;
+             }//end CASE OP-92
+      case 95:{
+              for(i; i<cycles; i++){
+                  Stress_Test_Op_95();
+                  write("LOOP NUMBER: %d", i);
+              }
+              i = 0;
+              break;
+             }//end CASE OP-92      
+      default:{
+               write("RONALDO GORD@0, VEM DAR SATISFACAO!!!");
+               for(i; i<cycles; i++){
+                  write("LOOP NUMBER: %d", i);
+                  Stress_Test_Op_86(); 
+                  CheckVehicleConditions();
+                  Stress_Test_Op_92();
+                  CheckVehicleConditions();
+                  Stress_Test_Op_95();
+                  CheckVehicleConditions();
+              }
+              i = 0;
+              break;       
+              }
+  }//end switch OP_NUMER
+  
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+/*=============================================================================================================================*/
+
+
+
+
+
+
+
+/*===========================================================================================================================
+===================                            P.R.I.V.A.T.E  F.U.N.C.T.I.O.N.S                         =====================
+===========================================================================================================================*/
+//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//---------------------------------------------------------------------------------------------------------------------------
+void GetLog_HU(){
+  testValidateSystemCall
+  (
+      "PATH", 
+      "screenTestWhiteRaster.bat",
+      3000
+   );
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//---------------------------------------------------------------------------------------------------------------------------
+void ADB_WhiteRaster(){
+  testValidateSystemCall
+  (
+      "PATH", 
+      "screenTestWhiteRaster.bat",
+      10000
+   );
+}
+//---------------------------------------------------------------------------------------------------------------------------
+//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//---------------------------------------------------------------------------------------------------------------------------
+void ADB_ClickOnScreen(){
+  testValidateSystemCall
+  (
+      "PATH", 
+      "clickOnScreen.bat",
+      2000
+   );
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+//Turn HU On/Off
+//---------------------------------------------------------------------------------------------------------------------------
+void PowerButton(int time_press){
+  $Radio_btn0 = PRESSED;
+  testWaitForTimeout(time_press);
+  $Radio_btn0 = RELEASED;
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+//Screen Off
+//---------------------------------------------------------------------------------------------------------------------------
+void ScreenOffButton(int time_press){
+  $Radio_btn2 = PRESSED;
+  testWaitForTimeout(time_press);
+  $Radio_btn2 = RELEASED;
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+//CHECK THE HU INITIALIZATION STATES (PowerSts_Telematic and TGW_DISP_STATSts)
+//---------------------------------------------------------------------------------------------------------------------------
+void Check_HU_Initialization(int timeout){
+    if($PowerSts_Telematic == Full_Operation){
+      write("HU is already in FULL_OP");
+      //checar se o dcsd esta em normal_mode
+      //CrossCheckScreenSts(DISPLAY_NORMAL_MODE, _ON);
+      testStepPass("Check_HU_Initialization", "HU is already in Full-Operation Mode");   
+    }         
+    
+    //adicionado dia 27/04/2023 as 11:02 --> pq se o radio estiver em idle, n precisa esperar 30s. Basta apertar o power...
+    else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
+        write("HU was in IDLE...");
+        PowerButton(TIME_SHORT_PRESS);
+        testWaitForTimeout(2000);
+        
+        //I have to check again if the HU is in FULL-OP
+        if($PowerSts_Telematic == Full_Operation){
+            write("After coldboot and send radio_btn0, HU is in FULL_OP");
+            testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+        }
+        else{
+            write("Even after coldboot_time and send radio_btn0, HU is in IDLE...");
+            testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+        }
+    }//end -> hu was in 'idle'
+    //aqui acabou o inxerto de codigo que fiz!
+    
+    
+    else{
+      write("HU is not in FULL_OP");
+      write("Lets wait for coldboot process");
+      testWaitForTimeout(HU_TIMEOUT_COLDBOOT);    //DELAY DUE COLD INITIALIZATION PROCCESS                      
+      write("HU_POWERSts");
+      Check_HU_PowerSts();                        //AFTER COLD BOOT, LETS CHECK THE HU's power status
+      write("HU_PowerSts");
+      Check_HU_TGW_Sts(DISPLAY_NORMAL_MODE);      //After lets check the HU's screen status
+    }
+}//end -> check_hu_initialization()
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+//CHECK THE HU PowerSts_Telematic
+//---------------------------------------------------------------------------------------------------------------------------
+void Check_HU_PowerSts(){
+    /*
+     Checking the signal 'PowerSts_Telemaitc'
+    */
+    //after 30s the HU must stay in full_operation because the key is in the position ON
+    if($PowerSts_Telematic == Full_Operation){
+        write("After coldboot, HU is in FullOperation");
+        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+    }  
+     
+    //if HU is not in Full Operation, perhaps it may stay in other state that we can try a recovery. 
+    //Because the focus here is the DCSD and 'fuck' to the HU.
+    //So, first let's wait for more 1 second (maybe HU is so slug).
+    else{ 
+        write("HU is so slug... lets wait for more 1 sec!!!");
+        testWaitForTimeout(1000);
+        
+        //HU == TIMED? ---> TEST FAILED
+        if($PowerSts_Telematic == Timed){
+            write("HU was in TIMED...");
+            testStepFail("Check_HU_Initialization", "HU is in Timed even with the bench in KeyOn");
+        }
+ 
+        //HU == IDLE? ---> Send 'radio_btn_0' and check the state again.
+        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
+            write("HU was in IDLE...");
+            PowerButton(TIME_SHORT_PRESS);
+            testWaitForTimeout(2000);
+            
+            //I have to check again if the HU is in FULL-OP
+            if($PowerSts_Telematic == Full_Operation){
+                write("After coldboot and send radio_btn0, HU is in FULL_OP");
+                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+            }
+            else{
+                write("Even after coldboot_time and send radio_btn0, HU is in IDLE...");
+                testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+            }
+        }//end -> hu was in 'idle'
+
+        //HU == STAND-BY? ---> wait 5 sec and check the state again.
+        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Standby){
+            write("Even after coldboot_time, HU is in STAND_BY... Lets wait for more 5 sec!!!");
+            testWaitForTimeout(5000);
+       
+            //I have to check again if the HU is in FULL-OP
+            if($PowerSts_Telematic == Full_Operation){
+                write("After coldboot_time + 5000ms HU is finaly in Full-Op mode!!!");
+                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+            }
+            else{
+                if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
+                    write("Today is so hard to turn the HU on in FULL-OP... Lets wait for more 2 sec!!!");
+                    PowerButton(TIME_SHORT_PRESS);
+                    testWaitForTimeout(2000);
+                    
+                    //I have to check again if the HU is in FULL-OP
+                    if($PowerSts_Telematic == Full_Operation){
+                        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                    }
+                    else{
+                        write("Today is so hard to turn the HU on in FULL-OP... I gave up!!!"); 
+                        testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+                    }
+                }//end -> hu was in 'idle'
+                else{
+                    write("I just give-up! Please, stop/start and try again!");
+                    testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");    
+                }
+            }
+        }//end -> hu was in 'idle'
+ 
+        
+        //HU == Sleep? ---> wait 5 sec and check the state again.
+        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Sleep){  
+            write("HU was in sleep even after cold_boot time... Lets wait for more 5 sec!!!");
+            testWaitForTimeout(5000);
+       
+            //I have to check again if the HU is in FULL-OP
+            if($PowerSts_Telematic == Full_Operation){
+                write("After sleep, HU is finally in FULL-OP mode!");
+                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+            }
+            else{
+                if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
+                    write("After sleep, HU backs in IDLE mode.. lets send radio_btn0 to change it to Full-Op");
+                    PowerButton(TIME_SHORT_PRESS);
+                    testWaitForTimeout(2000);
+                    
+                    //I have to check again if the HU is in FULL-OP
+                    if($PowerSts_Telematic == Full_Operation){
+                        write("Finaly, HU is in Full-Op mode!!!");
+                        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                    }
+                    else{
+                        write("HU is not able to gets Full-Op mode...");
+                        testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+                    }
+                }//end -> hu was in 'idle'
+                else{
+                    write("After backs from SLEEP mode.. nothing were enough to put HU in FULL-OP mode...");
+                    testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");    
+                }
+            }
+        }//end -> hu was in 'idle'
+        
+        //another state conditions ---> error
+        else{
+            write("Sorry guys... I give up... Please, lets prey... I give up");
+            testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");  
+        }
+    }//end -> hu takes more than 30s to start and goes to full-operation mode
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+//Start_Stress_Test
+//---------------------------------------------------------------------------------------------------------------------------
+void Stress_Test_Op_92(){
+  write("=========================================================");
+  write("============ welcome to OP-92 Stress Test ===============");
+  write("=========================================================");
+ //state --> rvc
+ write("adb");
+ ADB_ClickOnScreen(); 
+ testWaitForTimeout(1000);
+ write("Lever Position = R");
+ Set_Lever_Position(LEVER_POSITION_R);
+ write("Lets wait for 5seconds in RVC");
+ testWaitForTimeout(5000);
+ CrossCheckScreenSts(DISPLAY_RVC, _RR_CMRA);
+ //CrossCheckScreenSts(DISPLAY_RVC, _ON);   <<<------------------ COMO QUE ESSA PORRA ESTAVA FUNCIONANDO? IMPOSSIVEL.
+ LDR_Check();
+ CrossCheck_SignalVoltage($DCSD_DISP_STAT, LDR_STATUS_NOW);
+ testWaitForTimeout(5000);
+ 
+  
+ //invert state
+  
+  
+ //state --> park
+ Set_Lever_Position(LEVER_POSITION_P); 
+ testWaitForTimeout(5000);
+ CrossCheckScreenSts(DISPLAY_NORMAL_MODE, _ON); //adb
+ ADB_WhiteRaster();
+ testWaitForTimeout(5000);
+ LDR_Check();
+ CrossCheck_SignalVoltage($DCSD_DISP_STAT, LDR_STATUS_NOW);
+ testWaitForTimeout(5000);
+  
+//  //sleep for 15seconds
+//  VehicleGetSleep();
+//  testWaitForTimeout(5000);
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+//LDR_Check
+//---------------------------------------------------------------------------------------------------------------------------
+void LDR_Check(){
+  double ldrValue;
+  ldrValue = @IO::VN1600_1::AIN;
+  
+  if(ldrValue >= 0 && ldrValue <= 0.1){
+    LDR_STATUS_NOW = LDR_READING_BLACK;
+  }
+  else if(ldrValue > 0.13 && ldrValue < 1.7){
+    LDR_STATUS_NOW = LDR_READING_BACKLIGHT;
+  }
+  else if(ldrValue > 3 && ldrValue < 6.3){
+    LDR_STATUS_NOW = LDR_READING_BLUE;
+  }
+  else if(ldrValue > 7 && ldrValue < 12){
+    LDR_STATUS_NOW = LDR_READING_WHITE;
+  }
+  else LDR_STATUS_NOW = LDR_READING_OTHERS;
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+//CrossCheck_SignalVoltage
+//---------------------------------------------------------------------------------------------------------------------------
+void CrossCheck_SignalVoltage(int dcsdSts, int ldrSts){
+  switch(dcsdSts){
+    case _ON:{
+                if(ldrSts == LDR_READING_WHITE){
+                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                }
+                else 
+                {
+                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                }
+                break;
+             
+    }  
+    case _RR_CMRA:{
+                if(ldrSts == LDR_READING_BLUE){
+                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                }
+                else 
+                {
+                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                }
+                break;
+    }
+    case DISPLAY_OFF:{
+                if(ldrSts == LDR_READING_BLACK){
+                  testStepPass("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are match");
+                }
+                else 
+                {
+                  testStepFail("CrossCheck_SignalVoltage:", "DCSD CAN signal and LDR value are NOT match");
+                }
+                break;
+    }
+    default: {
+              write("chdfojnhsuiodfhnsd");
+    }
+  }
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+//CrossCheckScreenSts
+/*
+ DISPLAY_OFF    
+ DISPLAY_NORMAL_MODE  
+ DISPLAY_RVC      
+ DISPLAY_BLANK       
+ DISPLAY_SPLASH_SCREEN 
+ DISPLAY_SNA    
+  
+  _OFF    
+  _ON    
+ _BLANK   
+  _RR_CMRA  
+  _DISP_HOT 
+  _SNA      
+*/
+//---------------------------------------------------------------------------------------------------------------------------
+//CrossCheckScreenSts(RVC, ON)
+void CrossCheckScreenSts(int hu_screen_sts, int dcsd_screen_sts){
+  testWaitForTimeout(1500); //TEMPO PRO DCSD MUDAR DE ESTADO
+  getSignalDescriptionForValue(TGW_DISP_STATSts, hu_screen_sts,    translate_hu,   2048);
+  getSignalDescriptionForValue(DCSD_DISP_STAT,   dcsd_screen_sts,  translate_dcsd, 2048);
+  switch(hu_screen_sts){
+      case DISPLAY_NORMAL_MODE:{
+                         if($DCSD_DISP_STAT == _ON){testStepPass("CrossCheckScreenSts", " DCSD and HU are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DCSD is equal to %s and HU is equal to %s", translate_dcsd, translate_hu);}
+                         break;
+                       }
+      case DISPLAY_RVC:{
+                         if($DCSD_DISP_STAT == _RR_CMRA){testStepPass("CrossCheckScreenSts", " DCSD and HU are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DCSD is equal to %s and HU is equal to %s", translate_dcsd, translate_hu);}
+                         break;
+                       }
+      default: {write("Malandro"); break;}
+  }
+  strncpy(translate_dcsd, "                              ", 30);
+  strncpy(translate_hu,   "                              ", 30);
+}
+//---------------------------------------------------------------------------------------------------------------------------//  
+
+
+//----------------------------------------------------------------------------
+//Start_Stress_Test OP-86
+//---------------------------------------------------------------------------------------------------------------------------
+void Stress_Test_Op_86(){
+  write("=========================================================");
+  write("============ welcome to OP-86 Stress Test ===============");
+  write("=========================================================");
+  flagOP86 = 1;
+  CheckVehicleConditions();
+  setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+  
+  //espera 10 seg (nisso o 'on message' esta contando as mensages do dcsd)
+  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  
+  ScreenOffButton(TIME_SHORT_PRESS);
+  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  
+  PowerButton(TIME_SHORT_PRESS);
+  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  
+  PowerButton(TIME_SHORT_PRESS);
+  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  
+  ScreenOffButton(TIME_SHORT_PRESS);
+  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  
+  cancelTimer(timerToCheckDCSDNetSts);
+  flagOP86 = 0;
+  VehicleGetSleep();
+  
+  
+  //espera 15 seg pra iniciar outro loop
+  testWaitForTimeout(15000);
+}
+
+on timer timerToCheckDCSDNetSts
+{
+  testStepFail("Check DCSD Network Sts", "DCSD stop sending messages");
+}
+
+on message DIS_CENTERSTACK{
+  if(flagOP86){
+    setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+  }
+}
+
+on message NWM_DCSD{
+  if(flagOP86){
+    setTimer(timerToCheckDCSDNetSts, timeNetDCSD);
+  }
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+//Start_Stress_Test OP-95
+//---------------------------------------------------------------------------------------------------------------------------
+Stress_Test_Op_95(){
+
+  op95();
+  //test_robot();
+}
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+void op95(){
+  write("=========================================================");
+  write("============ welcome to OP-95 Stress Test ===============");
+  write("=========================================================");
+  //0 - garantir que o radio esta em full-op
+  CheckVehicleConditions();
+  
+  
+  //1 - Enviar comando adb pro radio
+  testValidateSystemCall
+  (
+      "PATH", 
+      "screenTest.bat",
+      7000
+   );
+  
+  //2 - Mandar o idiota clicar na tela
+  //2.1 -aguardar 5 segundos nessa tela branca
+  testWaitForTimeout(5000);
+  
+  // robo --> clique na tela...
+  @sysvar::IO::VN1600_1::DOUT = 0;  //liga o led
+  write("Led aceso");
+  testWaitForTimeout(500);
+  @sysvar::IO::VN1600_1::DOUT = 1;  //desliga o led
+  write("Led apagado");
+  
+  //2.2 - esperar 5 segundos na tela branca
+  testWaitForTimeout(5000);
+  
+  //como o dcsd nao deve estar na cor banca, preciso checar se de fato o que o LDR e o DCSD estao 'lendo'...      
+  //3 - Checando o LDR
+   LDR_Check();
+   if(LDR_STATUS_NOW == LDR_READING_WHITE){
+      testStepPass("LDR_Check", "TOUCH WORKING AS EXPECTED!");
+   }
+   else{
+      testStepFail("LDR_Check", "TOUCH NOT WORKING OR ROBOT NOT TOUCHED IN THE SCREEN");
+   }  
+  
+  
+  //4 - Ciclo de rede por 5 segundos
+  VehicleGetSleep();
+  testWaitForTimeout(5000);
+}
+
+
+void test_robot(){
+  @sysvar::IO::VN1600_1::DOUT = 0;  //liga o led
+  write("Led aceso");
+  testWaitForTimeout(500);
+  @sysvar::IO::VN1600_1::DOUT = 1;  //desliga o led
+  write("Led apagado");
+  testWaitForTimeout(5000);
+}
+
