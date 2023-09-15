@@ -1,8 +1,11 @@
+#  test my_lib 
+#  Please, dont forget to replace 'PATH' for your real path 'C:\\FOO\Bar\file.bat' 
+
 from RsNgx import *
 import time
 import os
 
-os.environ['PYTHONPATH'] = 'C:/Users/F86450C/.platformio/python3/'
+os.environ['PYTHONPATH'] = 'PATH'
 os.system('Echo "Teste"')
 
 

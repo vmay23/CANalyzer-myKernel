@@ -1,6 +1,7 @@
 /*@!Encoding:1252*/
 /*
-  test my_lib
+  test my_lib 
+  Please, dont forget to replace 'PATH' for your real path 'C:\\FOO\Bar\file.bat' 
 */
 /*===========================================================================================================================
 ===================                                       SUMMARY                                        ====================
