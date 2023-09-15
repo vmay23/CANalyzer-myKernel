@@ -7,52 +7,52 @@
 ===================                                       SUMMARY                                        ====================
 =============================================================================================================================
 /
-/  @sysvar::__Project__app_layer_::Ign_Sts = 0x01 --> meaning keyOn
+/  @sysvar::__Project__app_layer_::Ign_Sts = 0xFF1 --> meaning keyOn
 /           I - NetOn();
-/                         @sysvar::IL::Clamp15 = 0x01;     //ENABLE Interactive Layer (KL15)      
-/                         @sysvar::IL::Clamp30 = 0x01;     //ENABLE KL30
-/                         $ActiveLoadMaster = 0x01;        //active_loads_master
-/                         $SystemCommand    = 0x02;        //stay_active
-/                         $MainWakeSts_BCM  = 0x01;        //active
-/                         setTimerCyclic(t_vin_bh,1000);   //set vinTimer to bhcan
-/                         setTimerCyclic(t_vin_c1,1000);   //set vinTimer to ccan1
+/                         @sysvar::IL::Clamp15 = 0xFF1;     //ENABLE Interactive Layer (KL15)      
+/                         @sysvar::IL::Clamp30 = 0xFF1;     //ENABLE KL30
+/                         $ActiveLoadMaster = 0xFF1;        //active_loads_master
+/                         $SystemCommand    = 0xFF2;        //stay_active
+/                         $MainWakeSts_GATEWAY  = 0xFF1;        //active
+/                         setTimerCyclic(t_vin_bh,1000);   //set vinTimer to CAN_I
+/                         setTimerCyclic(t_vin_c1,1000);   //set vinTimer to CAN_II1
 /
 /
 /           II - KeyOn();
 /                         cancelTimer(t_TimeToSleep);
 /                         cancelTimer(t_netOff);
 /                         NetOn();
-/                         $BHCAN_1::BCM::STATUS_BH_BCM1::OperationalModeSts = 0x04;     //ign On
-/                         $CCAN1_2::BCM::BCM_COMMAND::OperationalModeSts    = 0x04;     //ign On
-/                         $BHCAN_1::BCM::STATUS_BH_BCM2::CmdIgnSts          = 0x04;     //ign On
-/                         $CCAN1_2::BCM::BODY2::CmdIgnSts                   = 0x04;     //ign On
+/                         $CAN_I_1::GATEWAY::STATUS_BH_GATEWAY1::OperationalModeSts = 0xFF;     //ign On
+/                         $CAN_II1_2::GATEWAY::GATEWAY_COMMAND::OperationalModeSts    = 0xFF;     //ign On
+/                         $CAN_I_1::GATEWAY::STATUS_BH_GATEWAY2::CmdIgnSts          = 0xFF;     //ign On
+/                         $CAN_II1_2::GATEWAY::BODY2::CmdIgnSts                   = 0xFF;     //ign On
 /
-/                         $BHCAN_1::BCM::BCM_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter bh
-/                         $CCAN1_2::BCM::BCM_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter c1
+/                         $CAN_I_1::GATEWAY::GATEWAY_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter bh
+/                         $CAN_II1_2::GATEWAY::GATEWAY_IGNITION_ON_COUNTER::IgnitionOnCounter ++; //increment the ign counter c1
 /
 /
 /
-/  @sysvar::__Project__app_layer_::Ign_Sts = 0x00 --> meaning keyOff
+/  @sysvar::__Project__app_layer_::Ign_Sts = 0xFF0 --> meaning keyOff
 /           III - KeyOff();
 /                           @sysvar::__Project__app_layer_::ShiftLeverPosition = Park;
-/                           $BHCAN_1::BCM::STATUS_BH_BCM1::OperationalModeSts = 0x02;   //ign off
-/                           $CCAN1_2::BCM::BCM_COMMAND::OperationalModeSts = 0x02;      //ign off
-/                           $BHCAN_1::BCM::STATUS_BH_BCM2::CmdIgnSts = 0x01;            //ign off
-/                           $CCAN1_2::BCM::BODY2::CmdIgnSts = 0x01;                     //ign off
+/                           $CAN_I_1::GATEWAY::STATUS_BH_GATEWAY1::OperationalModeSts = 0xFF2;   //ign off
+/                           $CAN_II1_2::GATEWAY::GATEWAY_COMMAND::OperationalModeSts = 0xFF2;      //ign off
+/                           $CAN_I_1::GATEWAY::STATUS_BH_GATEWAY2::CmdIgnSts = 0xFF1;            //ign off
+/                           $CAN_II1_2::GATEWAY::BODY2::CmdIgnSts = 0xFF1;                     //ign off
 /  
 /                           setTimer(t_netOff, T_NET_OFF);                              //after 8 seconds to program the bus to sleep
 /                                   NetOff();               
 /
 /
 /           IV - NetOff();
-/                           $ActiveLoadMaster = 0x00;               //no_active_loads_master
-/                           $SystemCommand    = 0x03;               //sleep
-/                           $MainWakeSts_BCM  = 0x00;               //not_active
+/                           $ActiveLoadMaster = 0xFF0;               //no_active_loads_master
+/                           $SystemCommand    = 0xFF3;               //sleep
+/                           $MainWakeSts_GATEWAY  = 0xFF0;               //not_active
 /                           setTimer(t_TimeToSleep,1000);           //set timer to sleep in 1 sec
-/                                     cancelTimer(t_vin_bh);        //cancel vin from bhcan
-/                                     cancelTimer(t_vin_c1);        //cancel vin from ccan1
-/                                     @sysvar::IL::Clamp15 = 0x00;          //disabling Interactive Layer (kernel)      
-/                                     @sysvar::IL::Clamp30 = 0x00;          //disabling +30
+/                                     cancelTimer(t_vin_bh);        //cancel vin from CAN_I
+/                                     cancelTimer(t_vin_c1);        //cancel vin from CAN_II1
+/                                     @sysvar::IL::Clamp15 = 0xFF0;          //disabling Interactive Layer (kernel)      
+/                                     @sysvar::IL::Clamp30 = 0xFF0;          //disabling +30
 /
 */
 
@@ -64,9 +64,9 @@ includes
 variables
 {
   char translate_DISP[30] = "";                          //translate the 'int' values from the DBC file
-  char translate_hu[30]   = "";                         
+  char translate_ANDROID_RADIO[30]   = "";                         
   
-  const int HU_TIMEOUT_COLDBOOT  = 30000;
+  const int ANDROID_RADIO_TIMEOUT_COLDBOOT  = 30000;
   const int TIME_SHORT_PRESS     =   250;
   const int TIME_LONG_PRESS      =  3000;
   const int TINE_LONG_LONG_PRESS = 15000;
@@ -76,52 +76,52 @@ variables
   const int LEVER_POSITION_N = 3;
   const int LEVER_POSITION_D = 4;
   
-  const int PRESSED = 0x01;
-  const int RELEASED = 0x00;
+  const int PRESSED = 0xFF1;
+  const int RELEASED = 0xFF0;
   
   
   /* ********************/
   /*  STATUS_TELEMATIC  */
   /* ********************/
   //AntitheftSts
-  const char ANTI_THEFT_NOT_SUCCESS = 0x00;
-  const char ANTI_THEFT_IN_PROGRESS = 0x01;
-  const char ANTI_THEFT_SUCCESS     = 0x02;
+  const char ANTI_THEFT_NOT_SUCCESS = 0xFF0;
+  const char ANTI_THEFT_IN_PROGRESS = 0xFF1;
+  const char ANTI_THEFT_SUCCESS     = 0xFF2;
         char ANTI_THEFT_STS         = ANTI_THEFT_IN_PROGRESS;
   //MuteSts
-  const char MUTE_STS_NOT_MUTED = 0x00;
-  const char MUTE_STS_MUTED     = 0x01;
+  const char MUTE_STS_NOT_MUTED = 0xFF0;
+  const char MUTE_STS_MUTED     = 0xFF1;
         char MUTE_STS           = MUTE_STS_NOT_MUTED;
   //PowerModeSts_Telematic
-  const char PWR_MODE_STS_STANDARD          = 0x00;
-  const char PWR_MODE_STS_LOGISTIC_MODE_ON  = 0x01;
-  const char PWR_MODE_STS_LOGISTIC_MODE_PR  = 0x02;
-  const char PWR_MODE_NOT_USED              = 0x03;
+  const char PWR_MODE_STS_STANDARD          = 0xFF0;
+  const char PWR_MODE_STS_LOGISTIC_MODE_ON  = 0xFF1;
+  const char PWR_MODE_STS_LOGISTIC_MODE_PR  = 0xFF2;
+  const char PWR_MODE_NOT_USED              = 0xFF3;
         char PWE_MODE_STS_TELEMATIC         = PWR_MODE_STS_STANDARD;
   //PowerSts_Telematic
-  const char  HU_SLEEP                  = 0x00;
-  const char  HU_STAND_BY               = 0x01;
-  const char  HU_TIMED                  = 0x02;
-  const char  HU_IDLE                   = 0x03;
-  const char  HU_FULL_OPERATIONAL       = 0x04;
-  const char  HU_LOGISTIC_ON            = 0x05;
-  const char  HU_BENCH                  = 0x06; 
-  const char  HU_PARTIAL_OPERATION      = 0x07;
-        char  PWR_STATUS_TELEMATIC      = HU_SLEEP;
-        char  LAST_PWR_STATUS_TELEMATIC = HU_SLEEP;
+  const char  ANDROID_RADIO_SLEEP                  = 0xFF0;
+  const char  ANDROID_RADIO_STAND_BY               = 0xFF1;
+  const char  ANDROID_RADIO_TIMED                  = 0xFF2;
+  const char  ANDROID_RADIO_IDLE                   = 0xFF3;
+  const char  ANDROID_RADIO_FULL_OPERATIONAL       = 0xFF;
+  const char  ANDROID_RADIO_LOGISTIC_ON            = 0xFF5;
+  const char  ANDROID_RADIO_BENCH                  = 0xFF6; 
+  const char  ANDROID_RADIO_PARTIAL_OPERATION      = 0xFF7;
+        char  PWR_STATUS_TELEMATIC      = ANDROID_RADIO_SLEEP;
+        char  LAST_PWR_STATUS_TELEMATIC = ANDROID_RADIO_SLEEP;
   //AUDIOSts_Telematic
-  const char  AUDIO_STS_AVAILABLE     = 0x01;
-  const char  AUDIO_STS_NOT_AVAILABLE = 0x02;
-  const char  AUDIO_STS_SNA           = 0x03;
+  const char  AUDIO_STS_AVAILABLE     = 0xFF1;
+  const char  AUDIO_STS_NOT_AVAILABLE = 0xFF2;
+  const char  AUDIO_STS_SNA           = 0xFF3;
         char  AUDIO_STS_TELEMATIC     = AUDIO_STS_AVAILABLE;
   //CurrentSource
-  const char  CURRENT_SOURCE_AM       = 0x00;
-  const char  CURRENT_SOURCE_FM       = 0x01;
+  const char  CURRENT_SOURCE_AM       = 0xFF0;
+  const char  CURRENT_SOURCE_FM       = 0xFF1;
   const char  CURRENT_SOURCE_TGW_USB1 = 19;
         char  CURRENT_SOURCE          = CURRENT_SOURCE_FM;
   //MicrophoneFailSts
-  const char  MICROPHONE_FAIL_NOT_PRESENT = 0x00;
-  const char  MICROPHONE_FAIL_PRESENT     = 0x01;
+  const char  MICROPHONE_FAIL_NOT_PRESENT = 0xFF0;
+  const char  MICROPHONE_FAIL_PRESENT     = 0xFF1;
         char  MICROPHONE_FAIL_STS         = MICROPHONE_FAIL_NOT_PRESENT;
   
   
@@ -150,7 +150,7 @@ variables
   /* ********************/
   /* LDR                */
   /* ********************/
-  const int 	  LDR_READING_BLACK = 0x00;			        //DISPLAY_OFF
+  const int 	  LDR_READING_BLACK = 0xFF0;			        //DISPLAY_OFF
   const int 	  LDR_READING_WHITE = 0xff;			        //DISPLAY_ON
   const int    LDR_READING_BLUE  = 0x15;              //rvc mnemonic
   const int    LDR_READING_BACKLIGHT = 0x30;          //backlight mnemonic (DISP in error)
@@ -160,10 +160,10 @@ variables
         double  LDR_Value = -1.00; 	                  //current value read by analog imput
     
         msTimer timerToCheckDISPNetSts;
-  const int baseTimeHU = 500;
+  const int baseTimeANDROID_RADIO = 500;
         int timeMultiplier = 20;
   const long timeNetDISP = 6000;
-        int flagOP86 = 0;
+        int flagOP10 = 0;
 }
 
 export void MayPowerSupplyCAPL(int out_channel, float voltage, float current, float time_sleep, int sts){
@@ -191,14 +191,14 @@ export void MayPowerSupplyCAPL(int out_channel, float voltage, float current, fl
 //---------------------------------------------------------------------------------------------------------------------------
 export void CheckVehicleConditions(){                                                                           //'export' --> to make it visible into vtest studio 
     @sysvar::IO::VN1600_1::DOUT = 1;  //desliga o led
-    @sysvar::__Project__app_layer_::Ign_Sts = 0x01;                                                                   //turning on the bench (kl15 and network messages)
+    @sysvar::__Project__app_layer_::Ign_Sts = 0xFF1;                                                                   //turning on the bench (kl15 and network messages)
     set_Lever_Position(LEVER_POSITION_P);                                                                       //Set Park Position                                      
     testWaitForTimeout(1500);                                                                                   //wait 1500ms to check all signals here
     
-    if($BCM::STATUS_BH_BCM1::OperationalModeSts == BHCAN_1::STATUS_BH_BCM1.OperationalModeSts::Ignition_On){    //check if vehicle is in keyon in indeed
+    if($GATEWAY::STATUS_BH_GATEWAY1::OperationalModeSts == CAN_I_1::STATUS_BH_GATEWAY1.OperationalModeSts::Ignition_On){    //check if vehicle is in keyon in indeed
         testStepPass("CheckVehicleConditions", "Vehicle is turned on");                                         //vehicle is in keyOn
-        write("As vehicle is in KEYON, lets check the HU powerSts as well");
-        Check_HU_Initialization(HU_TIMEOUT_COLDBOOT);                                                           //Check the HU   
+        write("As vehicle is in KEYON, lets check the ANDROID_RADIO powerSts as well");
+        Check_ANDROID_RADIO_Initialization(ANDROID_RADIO_TIMEOUT_COLDBOOT);                                                           //Check the ANDROID_RADIO   
     }                                                                                                           //end -> vehicle is in keyon mode
     else{      
         testWaitForTimeout(2500);
@@ -212,27 +212,27 @@ export void CheckVehicleConditions(){                                           
 //Set the ShiftPosition signals
 //---------------------------------------------------------------------------------------------------------------------------
 export void Set_Lever_Position(int position){
-    char flag_error = 0x00;
+    char flag_error = 0xFF0;
     switch(position){
-        case LEVER_POSITION_P:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_P;  break;}
-        case LEVER_POSITION_R:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_R;  break;}
-        case LEVER_POSITION_N:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_N;  break;}
-        case LEVER_POSITION_D:   {$BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition = LEVER_POSITION_D;  break;}
-        default:                 {flag_error = 0x01; break;}
+        case LEVER_POSITION_P:   {$CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition = LEVER_POSITION_P;  break;}
+        case LEVER_POSITION_R:   {$CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition = LEVER_POSITION_R;  break;}
+        case LEVER_POSITION_N:   {$CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition = LEVER_POSITION_N;  break;}
+        case LEVER_POSITION_D:   {$CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition = LEVER_POSITION_D;  break;}
+        default:                 {flag_error = 0xFF1; break;}
     }  
-    if(flag_error == 0x01){                                                         //there was error to choose the lever position
+    if(flag_error == 0xFF1){                                                         //there was error to choose the lever position
         write("Deu zebra!");  
         testStepFail("Set_Lever_Position", "Failed to set the leverPosition");      //error! test failed!!!
     } 
     else{                                                                           //there was not problem to choose the lever position...
-        if(position == LEVER_POSITION_P){                                           //if the choosed position was park, thus:
-            testWaitForTimeout(500);                                                //waiting for gateway transition time to the HU 
-            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_P){//let me check if the signal is in park
+        if(position == LEVER_POSITION_P){                                           //if the choosed position was park, tANDROID_RADIOs:
+            testWaitForTimeout(500);                                                //waiting for gateway transition time to the ANDROID_RADIO 
+            if($CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition == LEVER_POSITION_P){//let me check if the signal is in park
               if($ETM::TGW_DISP_STATSts == DISPLAY_RVC){
-                testStepFail("Set_Lever_Position", "HU take too long to exit from RVC screen");  //if is still in rvc!
+                testStepFail("Set_Lever_Position", "ANDROID_RADIO take too long to exit from RVC screen");  //if is still in rvc!
               }
               else if($ETM::TGW_DISP_STATSts != DISPLAY_RVC){
-                testStepPass("Set_Lever_Position [P]", "HU is NOT in RVC screen");  //if is still in park, ok!
+                testStepPass("Set_Lever_Position [P]", "ANDROID_RADIO is NOT in RVC screen");  //if is still in park, ok!
               }
             }
             else{                                                                   //else, we had a problem!
@@ -240,13 +240,13 @@ export void Set_Lever_Position(int position){
             }
         }
         else if(position == LEVER_POSITION_R){
-            testWaitForTimeout(2500);                                               //waiting for gateway transition time to the HU
-            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_R){
+            testWaitForTimeout(2500);                                               //waiting for gateway transition time to the ANDROID_RADIO
+            if($CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition == LEVER_POSITION_R){
               if($ETM::TGW_DISP_STATSts == DISPLAY_RVC){
                 testStepPass("Set_Lever_Position [RVC]", "RVC");
               }
               else{
-                testStepFail("Set_Lever_Position", "HU is NOT in RVC screen");
+                testStepFail("Set_Lever_Position", "ANDROID_RADIO is NOT in RVC screen");
               }
             }
              else{
@@ -256,7 +256,7 @@ export void Set_Lever_Position(int position){
         }       
         else if(position == LEVER_POSITION_N){                                                  //NEUTRAL
             testWaitForTimeout(500);                                                            //waiting for gateway transition time to the H
-            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_N){
+            if($CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition == LEVER_POSITION_N){
                 testStepPass("Set_Lever_Position", "Neutral");
             }
             else{
@@ -265,7 +265,7 @@ export void Set_Lever_Position(int position){
         }
         else if(position == LEVER_POSITION_D){
             testWaitForTimeout(500);                                                            //waiting for gateway transition time to the HU          
-            if($BHCAN_1::BCM::STATUS_CCAN5::ShiftLeverPosition == LEVER_POSITION_D){
+            if($CAN_I_1::GATEWAY::STATUS_CAN_II5::ShiftLeverPosition == LEVER_POSITION_D){
                 testStepPass("Set_Lever_Position", "Drive");
             }
             else{
@@ -300,18 +300,18 @@ void Check_DISP_DISCenterStack_Sts(int DISP_disp_sts){
 
 
 //----------------------------------------------------------------------------
-//Check the HU display signals
+//Check the ANDROID_RADIO display signals
 //---------------------------------------------------------------------------------------------------------------------------
-void Check_HU_TGW_Sts(int hu_tgw_sts){
+void Check_ANDROID_RADIO_TGW_Sts(int ANDROID_RADIO_tgw_sts){
   //getSignalDescriptionForValue(signal_with_the_same_name_from_the_dbc, variable_2be_translated, variable_2b_receive_translated_value, 2048);
-    getSignalDescriptionForValue(TGW_DISP_STATSts, hu_tgw_sts, translate_hu, 2048);
-    if($TGW_DISP_STATSts == hu_tgw_sts){
-      testStepPass("Check_HU_Status", "TGW_DISP_STATSts is in %s", translate_hu);
+    getSignalDescriptionForValue(TGW_DISP_STATSts, ANDROID_RADIO_tgw_sts, translate_ANDROID_RADIO, 2048);
+    if($TGW_DISP_STATSts == ANDROID_RADIO_tgw_sts){
+      testStepPass("Check_ANDROID_RADIO_Status", "TGW_DISP_STATSts is in %s", translate_ANDROID_RADIO);
     } 
     else{
-      testStepFail("Check_HU_Status", "TGW_DISP_STATSts is in CRAZY BEHAVIOUR MODE");
+      testStepFail("Check_ANDROID_RADIO_Status", "TGW_DISP_STATSts is in CRAZY BEHAVIOUR MODE");
     }    
-    strncpy(translate_hu, "                              ", 30);
+    strncpy(translate_ANDROID_RADIO, "                              ", 30);
 }
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -320,15 +320,15 @@ void Check_HU_TGW_Sts(int hu_tgw_sts){
 //Set vechicle signals to get sleep mode
 //---------------------------------------------------------------------------------------------------------------------------
 export void VehicleGetSleep(){
-  @sysvar::__Project__app_layer_::Ign_Sts = 0x00;                       //turning off the bench (kl15, kl30 and network messages)
+  @sysvar::__Project__app_layer_::Ign_Sts = 0xFF0;                       //turning off the bench (kl15, kl30 and network messages)
   testWaitForTimeout(10000);                                      //waiting 10s to check if the vehicle is turned off 
   
-  if($SystemCommand == BHCAN_1::NWM_BCM.SystemCommand::Sleep){
+  if($SystemCommand == CAN_I_1::NWM_GATEWAY.SystemCommand::Sleep){
     testStepPass("VehicleGetSleep", "Vehicle is in sleep mode");
   }
   else{
     testWaitForTimeout(10000); 
-    if($SystemCommand == BHCAN_1::NWM_BCM.SystemCommand::Sleep){
+    if($SystemCommand == CAN_I_1::NWM_GATEWAY.SystemCommand::Sleep){
       testStepPass("VehicleGetSleep", "Vehicle is in sleep mode");
     }
     else{
@@ -347,39 +347,39 @@ export void Start_Stress_Test(int op_number, int cycles){
   long i = 0;
   testWaitForTimeout(10000);
   switch(op_number){
-      case 86:{
+      case 10:{
               for(i; i<cycles; i++){
-                    Stress_Test_Op_86();
+                    Stress_Test_Op_10();
                     write("LOOP NUMBER: %d", i);
               } 
               i = 0;
               break;
-             }//end CASE OP-86
-      case 92:{
+             }//end CASE OP-10
+      case 11:{
               for(i; i<cycles; i++){
-                  Stress_Test_Op_92();
+                  Stress_Test_Op_11();
                   write("LOOP NUMBER: %d", i);
               }
               i = 0;
               break;
-             }//end CASE OP-92
-      case 95:{
+             }//end CASE OP-11
+      case 12:{
               for(i; i<cycles; i++){
-                  Stress_Test_Op_95();
+                  Stress_Test_Op_12();
                   write("LOOP NUMBER: %d", i);
               }
               i = 0;
               break;
-             }//end CASE OP-92      
+             }//end CASE OP-11      
       default:{
                write("RONALDO GORD@0, VEM DAR SATISFACAO!!!");
                for(i; i<cycles; i++){
                   write("LOOP NUMBER: %d", i);
-                  Stress_Test_Op_86(); 
+                  Stress_Test_Op_10(); 
                   CheckVehicleConditions();
-                  Stress_Test_Op_92();
+                  Stress_Test_Op_11();
                   CheckVehicleConditions();
-                  Stress_Test_Op_95();
+                  Stress_Test_Op_12();
                   CheckVehicleConditions();
               }
               i = 0;
@@ -401,9 +401,9 @@ export void Start_Stress_Test(int op_number, int cycles){
 /*===========================================================================================================================
 ===================                            P.R.I.V.A.T.E  F.U.N.C.T.I.O.N.S                         =====================
 ===========================================================================================================================*/
-//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//GET THE ANDROID_RADIO LOG USING ADB SCRIP OVER .BAT FILE
 //---------------------------------------------------------------------------------------------------------------------------
-void GetLog_HU(){
+void GetLog_ANDROID_RADIO(){
   testValidateSystemCall
   (
       "PATH", 
@@ -415,7 +415,7 @@ void GetLog_HU(){
 
 
 
-//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//GET THE ANDROID_RADIO LOG USING ADB SCRIP OVER .BAT FILE
 //---------------------------------------------------------------------------------------------------------------------------
 void ADB_WhiteRaster(){
   testValidateSystemCall
@@ -426,7 +426,7 @@ void ADB_WhiteRaster(){
    );
 }
 //---------------------------------------------------------------------------------------------------------------------------
-//GET THE HU LOG USING ADB SCRIP OVER .BAT FILE
+//GET THE ANDROID_RADIO LOG USING ADB SCRIP OVER .BAT FILE
 //---------------------------------------------------------------------------------------------------------------------------
 void ADB_ClickOnScreen(){
   testValidateSystemCall
@@ -442,7 +442,7 @@ void ADB_ClickOnScreen(){
 
 
 //----------------------------------------------------------------------------
-//Turn HU On/Off
+//Turn ANDROID_RADIO On/Off
 //---------------------------------------------------------------------------------------------------------------------------
 void PowerButton(int time_press){
   $Radio_btn0 = PRESSED;
@@ -463,163 +463,163 @@ void ScreenOffButton(int time_press){
 
 
 //----------------------------------------------------------------------------
-//CHECK THE HU INITIALIZATION STATES (PowerSts_Telematic and TGW_DISP_STATSts)
+//CHECK THE ANDROID_RADIO INITIALIZATION STATES (PowerSts_Telematic and TGW_DISP_STATSts)
 //---------------------------------------------------------------------------------------------------------------------------
-void Check_HU_Initialization(int timeout){
+void Check_ANDROID_RADIO_Initialization(int timeout){
     if($PowerSts_Telematic == Full_Operation){
-      write("HU is already in FULL_OP");
+      write("ANDROID_RADIO is already in FULL_OP");
       //checar se o DISP esta em normal_mode
       //CrossCheckScreenSts(DISPLAY_NORMAL_MODE, _ON);
-      testStepPass("Check_HU_Initialization", "HU is already in Full-Operation Mode");   
+      testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is already in Full-Operation Mode");   
     }         
     
     //adicionado dia 27/04/2023 as 11:02 --> pq se o radio estiver em idle, n precisa esperar 30s. Basta apertar o power...
-    else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
-        write("HU was in IDLE...");
+    else if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
+        write("ANDROID_RADIO was in IDLE...");
         PowerButton(TIME_SHORT_PRESS);
         testWaitForTimeout(2000);
         
-        //I have to check again if the HU is in FULL-OP
+        //I have to check again if the ANDROID_RADIO is in FULL-OP
         if($PowerSts_Telematic == Full_Operation){
-            write("After coldboot and send radio_btn0, HU is in FULL_OP");
-            testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+            write("After coldboot and send radio_btn0, ANDROID_RADIO is in FULL_OP");
+            testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
         }
         else{
-            write("Even after coldboot_time and send radio_btn0, HU is in IDLE...");
-            testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+            write("Even after coldboot_time and send radio_btn0, ANDROID_RADIO is in IDLE...");
+            testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");
         }
-    }//end -> hu was in 'idle'
+    }//end -> ANDROID_RADIO was in 'idle'
     //aqui acabou o inxerto de codigo que fiz!
     
     
     else{
-      write("HU is not in FULL_OP");
+      write("ANDROID_RADIO is not in FULL_OP");
       write("Lets wait for coldboot process");
-      testWaitForTimeout(HU_TIMEOUT_COLDBOOT);    //DELAY DUE COLD INITIALIZATION PROCCESS                      
-      write("HU_POWERSts");
-      Check_HU_PowerSts();                        //AFTER COLD BOOT, LETS CHECK THE HU's power status
-      write("HU_PowerSts");
-      Check_HU_TGW_Sts(DISPLAY_NORMAL_MODE);      //After lets check the HU's screen status
+      testWaitForTimeout(ANDROID_RADIO_TIMEOUT_COLDBOOT);    //DELAY DUE COLD INITIALIZATION PROCCESS                      
+      write("ANDROID_RADIO_POWERSts");
+      Check_ANDROID_RADIO_PowerSts();                        //AFTER COLD BOOT, LETS CHECK THE ANDROID_RADIO's power status
+      write("ANDROID_RADIO_PowerSts");
+      Check_ANDROID_RADIO_TGW_Sts(DISPLAY_NORMAL_MODE);      //After lets check the ANDROID_RADIO's screen status
     }
-}//end -> check_hu_initialization()
+}//end -> check_ANDROID_RADIO_initialization()
 //---------------------------------------------------------------------------------------------------------------------------
 
 
 //----------------------------------------------------------------------------
-//CHECK THE HU PowerSts_Telematic
+//CHECK THE ANDROID_RADIO PowerSts_Telematic
 //---------------------------------------------------------------------------------------------------------------------------
-void Check_HU_PowerSts(){
+void Check_ANDROID_RADIO_PowerSts(){
     /*
      Checking the signal 'PowerSts_Telemaitc'
     */
-    //after 30s the HU must stay in full_operation because the key is in the position ON
+    //after 30s the ANDROID_RADIO must stay in full_operation because the key is in the position ON
     if($PowerSts_Telematic == Full_Operation){
-        write("After coldboot, HU is in FullOperation");
-        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+        write("After coldboot, ANDROID_RADIO is in FullOperation");
+        testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
     }  
      
-    //if HU is not in Full Operation, perhaps it may stay in other state that we can try a recovery. 
-    //Because the focus here is the DISP and 'fuck' to the HU.
-    //So, first let's wait for more 1 second (maybe HU is so slug).
+    //if ANDROID_RADIO is not in Full Operation, perhaps it may stay in other state that we can try a recovery. 
+    //Because the focus here is the DISP and 'fuck' to the ANDROID_RADIO.
+    //So, first let's wait for more 1 second (maybe ANDROID_RADIO is so slug).
     else{ 
-        write("HU is so slug... lets wait for more 1 sec!!!");
+        write("ANDROID_RADIO is so slug... lets wait for more 1 sec!!!");
         testWaitForTimeout(1000);
         
-        //HU == TIMED? ---> TEST FAILED
+        //ANDROID_RADIO == TIMED? ---> TEST FAILED
         if($PowerSts_Telematic == Timed){
-            write("HU was in TIMED...");
-            testStepFail("Check_HU_Initialization", "HU is in Timed even with the bench in KeyOn");
+            write("ANDROID_RADIO was in TIMED...");
+            testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Timed even with the bench in KeyOn");
         }
  
-        //HU == IDLE? ---> Send 'radio_btn_0' and check the state again.
-        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
-            write("HU was in IDLE...");
+        //ANDROID_RADIO == IDLE? ---> Send 'radio_btn_0' and check the state again.
+        else if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){ 
+            write("ANDROID_RADIO was in IDLE...");
             PowerButton(TIME_SHORT_PRESS);
             testWaitForTimeout(2000);
             
-            //I have to check again if the HU is in FULL-OP
+            //I have to check again if the ANDROID_RADIO is in FULL-OP
             if($PowerSts_Telematic == Full_Operation){
-                write("After coldboot and send radio_btn0, HU is in FULL_OP");
-                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                write("After coldboot and send radio_btn0, ANDROID_RADIO is in FULL_OP");
+                testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
             }
             else{
-                write("Even after coldboot_time and send radio_btn0, HU is in IDLE...");
-                testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+                write("Even after coldboot_time and send radio_btn0, ANDROID_RADIO is in IDLE...");
+                testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");
             }
-        }//end -> hu was in 'idle'
+        }//end -> ANDROID_RADIO was in 'idle'
 
-        //HU == STAND-BY? ---> wait 5 sec and check the state again.
-        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Standby){
-            write("Even after coldboot_time, HU is in STAND_BY... Lets wait for more 5 sec!!!");
+        //ANDROID_RADIO == STAND-BY? ---> wait 5 sec and check the state again.
+        else if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Standby){
+            write("Even after coldboot_time, ANDROID_RADIO is in STAND_BY... Lets wait for more 5 sec!!!");
             testWaitForTimeout(5000);
        
-            //I have to check again if the HU is in FULL-OP
+            //I have to check again if the ANDROID_RADIO is in FULL-OP
             if($PowerSts_Telematic == Full_Operation){
-                write("After coldboot_time + 5000ms HU is finaly in Full-Op mode!!!");
-                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                write("After coldboot_time + 5000ms ANDROID_RADIO is finaly in Full-Op mode!!!");
+                testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
             }
             else{
-                if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
-                    write("Today is so hard to turn the HU on in FULL-OP... Lets wait for more 2 sec!!!");
+                if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
+                    write("Today is so hard to turn the ANDROID_RADIO on in FULL-OP... Lets wait for more 2 sec!!!");
                     PowerButton(TIME_SHORT_PRESS);
                     testWaitForTimeout(2000);
                     
-                    //I have to check again if the HU is in FULL-OP
+                    //I have to check again if the ANDROID_RADIO is in FULL-OP
                     if($PowerSts_Telematic == Full_Operation){
-                        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                        testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
                     }
                     else{
-                        write("Today is so hard to turn the HU on in FULL-OP... I gave up!!!"); 
-                        testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+                        write("Today is so hard to turn the ANDROID_RADIO on in FULL-OP... I gave up!!!"); 
+                        testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");
                     }
-                }//end -> hu was in 'idle'
+                }//end -> ANDROID_RADIO was in 'idle'
                 else{
                     write("I just give-up! Please, stop/start and try again!");
-                    testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");    
+                    testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");    
                 }
             }
-        }//end -> hu was in 'idle'
+        }//end -> ANDROID_RADIO was in 'idle'
  
         
-        //HU == Sleep? ---> wait 5 sec and check the state again.
-        else if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Sleep){  
-            write("HU was in sleep even after cold_boot time... Lets wait for more 5 sec!!!");
+        //ANDROID_RADIO == Sleep? ---> wait 5 sec and check the state again.
+        else if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Sleep){  
+            write("ANDROID_RADIO was in sleep even after cold_boot time... Lets wait for more 5 sec!!!");
             testWaitForTimeout(5000);
        
-            //I have to check again if the HU is in FULL-OP
+            //I have to check again if the ANDROID_RADIO is in FULL-OP
             if($PowerSts_Telematic == Full_Operation){
-                write("After sleep, HU is finally in FULL-OP mode!");
-                testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                write("After sleep, ANDROID_RADIO is finally in FULL-OP mode!");
+                testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
             }
             else{
-                if($PowerSts_Telematic == BHCAN_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
-                    write("After sleep, HU backs in IDLE mode.. lets send radio_btn0 to change it to Full-Op");
+                if($PowerSts_Telematic == CAN_I_1::STATUS_TELEMATIC.PowerSts_Telematic::Idle){
+                    write("After sleep, ANDROID_RADIO backs in IDLE mode.. lets send radio_btn0 to change it to Full-Op");
                     PowerButton(TIME_SHORT_PRESS);
                     testWaitForTimeout(2000);
                     
-                    //I have to check again if the HU is in FULL-OP
+                    //I have to check again if the ANDROID_RADIO is in FULL-OP
                     if($PowerSts_Telematic == Full_Operation){
-                        write("Finaly, HU is in Full-Op mode!!!");
-                        testStepPass("Check_HU_Initialization", "HU is in Full-Operation Mode");    //--> informa no relatorio que o test passou
+                        write("Finaly, ANDROID_RADIO is in Full-Op mode!!!");
+                        testStepPass("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO is in Full-Operation Mode");    //--> informa no relatorio que o test passou
                     }
                     else{
-                        write("HU is not able to gets Full-Op mode...");
-                        testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");
+                        write("ANDROID_RADIO is not able to gets Full-Op mode...");
+                        testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");
                     }
-                }//end -> hu was in 'idle'
+                }//end -> ANDROID_RADIO was in 'idle'
                 else{
-                    write("After backs from SLEEP mode.. nothing were enough to put HU in FULL-OP mode...");
-                    testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");    
+                    write("After backs from SLEEP mode.. nothing were enough to put ANDROID_RADIO in FULL-OP mode...");
+                    testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");    
                 }
             }
-        }//end -> hu was in 'idle'
+        }//end -> ANDROID_RADIO was in 'idle'
         
         //another state conditions ---> error
         else{
             write("Sorry guys... I give up... Please, lets prey... I give up");
-            testStepFail("Check_HU_Initialization", "HU not able to enter in Full-Operation Mode");  
+            testStepFail("Check_ANDROID_RADIO_Initialization", "ANDROID_RADIO not able to enter in Full-Operation Mode");  
         }
-    }//end -> hu takes more than 30s to start and goes to full-operation mode
+    }//end -> ANDROID_RADIO takes more than 30s to start and goes to full-operation mode
 }
 //---------------------------------------------------------------------------------------------------------------------------
 
@@ -631,9 +631,9 @@ void Check_HU_PowerSts(){
 //----------------------------------------------------------------------------
 //Start_Stress_Test
 //---------------------------------------------------------------------------------------------------------------------------
-void Stress_Test_Op_92(){
+void Stress_Test_Op_11(){
   write("=========================================================");
-  write("============ welcome to OP-92 Stress Test ===============");
+  write("============ welcome to OP-11 Stress Test ===============");
   write("=========================================================");
  //state --> rvc
  write("adb");
@@ -761,57 +761,57 @@ void CrossCheck_SignalVoltage(int DISPSts, int ldrSts){
 */
 //---------------------------------------------------------------------------------------------------------------------------
 //CrossCheckScreenSts(RVC, ON)
-void CrossCheckScreenSts(int hu_screen_sts, int DISP_screen_sts){
+void CrossCheckScreenSts(int ANDROID_RADIO_screen_sts, int DISP_screen_sts){
   testWaitForTimeout(1500); //TEMPO PRO DISP MUDAR DE ESTADO
-  getSignalDescriptionForValue(TGW_DISP_STATSts, hu_screen_sts,    translate_hu,   2048);
+  getSignalDescriptionForValue(TGW_DISP_STATSts, ANDROID_RADIO_screen_sts,    translate_ANDROID_RADIO,   2048);
   getSignalDescriptionForValue(DISP_DISP_STAT,   DISP_screen_sts,  translate_DISP, 2048);
-  switch(hu_screen_sts){
+  switch(ANDROID_RADIO_screen_sts){
       case DISPLAY_NORMAL_MODE:{
-                         if($DISP_DISP_STAT == _ON){testStepPass("CrossCheckScreenSts", " DISP and HU are match");}
-                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and HU is equal to %s", translate_DISP, translate_hu);}
+                         if($DISP_DISP_STAT == _ON){testStepPass("CrossCheckScreenSts", " DISP and ANDROID_RADIO are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and ANDROID_RADIO is equal to %s", translate_DISP, translate_ANDROID_RADIO);}
                          break;
                        }
       case DISPLAY_RVC:{
-                         if($DISP_DISP_STAT == _RR_CMRA){testStepPass("CrossCheckScreenSts", " DISP and HU are match");}
-                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and HU is equal to %s", translate_DISP, translate_hu);}
+                         if($DISP_DISP_STAT == _RR_CMRA){testStepPass("CrossCheckScreenSts", " DISP and ANDROID_RADIO are match");}
+                         else{testStepFail("CrossCheckScreenSts", " DISP is equal to %s and ANDROID_RADIO is equal to %s", translate_DISP, translate_ANDROID_RADIO);}
                          break;
                        }
       default: {write("Malandro"); break;}
   }
   strncpy(translate_DISP, "                              ", 30);
-  strncpy(translate_hu,   "                              ", 30);
+  strncpy(translate_ANDROID_RADIO,   "                              ", 30);
 }
 //---------------------------------------------------------------------------------------------------------------------------//  
 
 
 //----------------------------------------------------------------------------
-//Start_Stress_Test OP-86
+//Start_Stress_Test OP-10
 //---------------------------------------------------------------------------------------------------------------------------
-void Stress_Test_Op_86(){
+void Stress_Test_Op_10(){
   write("=========================================================");
-  write("============ welcome to OP-86 Stress Test ===============");
+  write("============ welcome to OP-10 Stress Test ===============");
   write("=========================================================");
-  flagOP86 = 1;
+  flagOP10 = 1;
   CheckVehicleConditions();
   setTimer(timerToCheckDISPNetSts, timeNetDISP);
   
   //espera 10 seg (nisso o 'on message' esta contando as mensages do DISP)
-  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  testWaitForTimeout(timeMultiplier*baseTimeANDROID_RADIO);
   
   ScreenOffButton(TIME_SHORT_PRESS);
-  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  testWaitForTimeout(timeMultiplier*baseTimeANDROID_RADIO);
   
   PowerButton(TIME_SHORT_PRESS);
-  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  testWaitForTimeout(timeMultiplier*baseTimeANDROID_RADIO);
   
   PowerButton(TIME_SHORT_PRESS);
-  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  testWaitForTimeout(timeMultiplier*baseTimeANDROID_RADIO);
   
   ScreenOffButton(TIME_SHORT_PRESS);
-  testWaitForTimeout(timeMultiplier*baseTimeHU);
+  testWaitForTimeout(timeMultiplier*baseTimeANDROID_RADIO);
   
   cancelTimer(timerToCheckDISPNetSts);
-  flagOP86 = 0;
+  flagOP10 = 0;
   VehicleGetSleep();
   
   
@@ -825,13 +825,13 @@ on timer timerToCheckDISPNetSts
 }
 
 on message DIS_CENTERSTACK{
-  if(flagOP86){
+  if(flagOP10){
     setTimer(timerToCheckDISPNetSts, timeNetDISP);
   }
 }
 
 on message NWM_DISP{
-  if(flagOP86){
+  if(flagOP10){
     setTimer(timerToCheckDISPNetSts, timeNetDISP);
   }
 }
@@ -841,11 +841,11 @@ on message NWM_DISP{
 
 
 //----------------------------------------------------------------------------
-//Start_Stress_Test OP-95
+//Start_Stress_Test OP-12
 //---------------------------------------------------------------------------------------------------------------------------
-Stress_Test_Op_95(){
+Stress_Test_Op_12(){
 
-  op95();
+  op12();
   //test_robot();
 }
 //---------------------------------------------------------------------------------------------------------------------------
@@ -853,9 +853,9 @@ Stress_Test_Op_95(){
 
 
 
-void op95(){
+void op12(){
   write("=========================================================");
-  write("============ welcome to OP-95 Stress Test ===============");
+  write("============ welcome to OP-12 Stress Test ===============");
   write("=========================================================");
   //0 - garantir que o radio esta em full-op
   CheckVehicleConditions();
