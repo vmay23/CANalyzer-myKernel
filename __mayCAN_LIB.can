@@ -81,7 +81,7 @@ variables
   
   
   /* ********************/
-  /*  STATUS_TELEMATIC  */
+  /*  HU                */
   /* ********************/
   //AntitheftSts
   const char ANTI_THEFT_NOT_SUCCESS = 0xFF0;
@@ -126,7 +126,7 @@ variables
   
   
   /* ****************************************/
-  /*  TELEMATIC_DISPLAY2.TGW_DISP_STATSts  */
+  /*  DISP                                  */
   /* ****************************************/
   const int DISPLAY_OFF           = 0;
   const int DISPLAY_NORMAL_MODE   = 2;
@@ -137,7 +137,7 @@ variables
 
   
   /* ********************/
-  /* DIS_CENTERSTACK    */
+  /* AUX                */
   /* ********************/
   const int _OFF       = 0;
   const int _ON        = 1;
